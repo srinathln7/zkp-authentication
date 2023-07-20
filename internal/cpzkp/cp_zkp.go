@@ -3,6 +3,7 @@ package cp_zkp
 import (
 	"crypto/rand"
 	"math/big"
+	"sync"
 )
 
 // ZKPParameters represents the public parameters for the ZKP protocol.
@@ -21,8 +22,8 @@ type Verifier struct {
 }
 
 // InitZKPParameters generates random public parameters for the ZKP protocol.
-// The function generates secure prime number p and finds a suitable prime number q based on p.
-// It then calculates g and h based on p and q.
+// The function generates secure prime number p and finds a suitable prime number `q` based on `p`.
+// It then calculates `g` and `h` concurrently based on `p` and `q`.
 func InitZKPParameters() (*ZKPParameters, error) {
 
 	// The system parameters are generated as per the explanation in the forum: https://crypto.stackexchange.com/questions/99262/chaum-pedersen-protocol
@@ -39,15 +40,38 @@ func InitZKPParameters() (*ZKPParameters, error) {
 		return nil, err
 	}
 
-	// Calculate g = 2^(p-1)/q mod p
-	g := new(big.Int).Exp(big.NewInt(2), new(big.Int).Div(new(big.Int).Sub(p, big.NewInt(1)), q), p)
+	// Calculate g and h concurrently to optimize performance
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-	// Calculate h = random value in the range [1, p-1]
-	h, err := rand.Int(rand.Reader, new(big.Int).Sub(p, big.NewInt(1)))
-	if err != nil {
-		return nil, err
+	var g, h *big.Int
+
+	// spin up a go routine to calculate g
+	go func() {
+		// Calculate g = 2^(p-1)/q mod p
+		g = new(big.Int).Exp(big.NewInt(2), new(big.Int).Div(new(big.Int).Sub(p, big.NewInt(1)), q), p)
+		wg.Done()
+	}()
+
+	// spin up a go routine to calculate h
+	var hErr error
+	go func() {
+		// Calculate h = random value in the range [1, p-1]
+		h, hErr = rand.Int(rand.Reader, new(big.Int).Sub(p, big.NewInt(1)))
+		if hErr == nil {
+			h.Add(h, big.NewInt(1))
+		}
+
+		wg.Done()
+	}()
+
+	// Wait for both goroutines to complete
+	wg.Wait()
+
+	// Check if an error occurred during the calculation of h
+	if hErr != nil {
+		return nil, hErr
 	}
-	h.Add(h, big.NewInt(1))
 
 	return &ZKPParameters{
 		p: p,
