@@ -6,6 +6,7 @@ import (
 )
 
 // ZKPParameters represents the public parameters for the ZKP protocol.
+// p -> primeP, q -> primeQ, g -> generatorG, and h -> generatorH.
 type ZKPParameters struct {
 	p, q, g, h *big.Int
 }
@@ -19,11 +20,13 @@ type Prover struct {
 type Verifier struct {
 }
 
-// NewZKPParameters generates random public parameters for the ZKP protocol.
+// InitZKPParameters generates random public parameters for the ZKP protocol.
 // The function generates secure prime number p and finds a suitable prime number q based on p.
 // It then calculates g and h based on p and q.
-// The system parameters are generated as per the explanation in the forum: https://crypto.stackexchange.com/questions/99262/chaum-pedersen-protocol
-func NewZKPParameters() (*ZKPParameters, error) {
+func InitZKPParameters() (*ZKPParameters, error) {
+
+	// The system parameters are generated as per the explanation in the forum: https://crypto.stackexchange.com/questions/99262/chaum-pedersen-protocol
+
 	// Use larger prime number (e.g., 512 bits) for p
 	p, err := rand.Prime(rand.Reader, 512)
 	if err != nil {
@@ -77,53 +80,63 @@ func NewProver(x *big.Int) *Prover {
 
 // GenerateYValues generates y1 and y2 for the prover based on the public parameters.
 // The prover calculates y1 = g^x mod p and y2 = h^x mod p.
+// y1 and y2 are public informations
 func (p *Prover) GenerateYValues(params *ZKPParameters) (y1, y2 *big.Int) {
 	y1 = new(big.Int).Exp(params.g, p.x, params.p)
 	y2 = new(big.Int).Exp(params.h, p.x, params.p)
 	return y1, y2
 }
 
-// CreateProof creates a zero-knowledge proof based on the prover's y1 and y2 values.
+// CreateProofCommitment: creates a zero-knowledge proof commitment step based on the prover's y1 and y2 values.
 // The prover selects a random value k and commits (r1, r2) = (g^k mod p, h^k mod p).
-// Then, the prover computes c = y1^k mod p.
-// Finally, the prover calculates s = (k - c * x) mod q.
-func (p *Prover) CreateProof(y1, y2 *big.Int, params *ZKPParameters) (r1, r2, c, s *big.Int, err error) {
+func (p *Prover) CreateProofCommitment(params *ZKPParameters) (r1, r2 *big.Int, err error) {
 	k, err := rand.Int(rand.Reader, params.q) // Use cryptographically secure random number generator
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	// Compute commitments (r1, r2) = (g^k mod p, h^k mod p)
 	r1 = new(big.Int).Exp(params.g, k, params.p)
 	r2 = new(big.Int).Exp(params.h, k, params.p)
 
-	// Compute c = y1^k mod p
-	c = new(big.Int).Exp(y1, k, params.p)
+	return r1, r2, nil
+}
 
-	// Compute s = (k - c * x) mod q
+// CreateProofChallenge: verifier creates a challenge to the prover by generating a random big integer
+// which will be subsequently used by the prover in the `CreateProofChallengeResponse` step
+func (v *Verifier) CreateProofChallenge(params *ZKPParameters) (c *big.Int, err error) {
+	// Generate a random `c` using cryptographically secure random number generator
+	c, err = rand.Int(rand.Reader, params.q)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}
+
+// CreateProofChallengeResponse: prover creates the response to the verifier's challenge
+// Compute s = (k - c * x) mod q
+func (p *Prover) CreateProofChallengeResponse(k, c *big.Int, params *ZKPParameters) (s *big.Int) {
 	s = new(big.Int).Sub(k, new(big.Int).Mul(c, p.x))
 	s.Mod(s, params.q)
-
-	return r1, r2, c, s, nil
+	return s
 }
 
 // VerifyProof verifies the zero-knowledge proof using the verifier's y1, y2, and the public parameters.
 // The verifier checks if r1 = (g^s * y1^c) mod p and r2 = (h^s * y2^c) mod p.
 // If both checks pass, the proof is valid, and the function returns true; otherwise, it returns false.
 func (v *Verifier) VerifyProof(y1, y2, r1, r2, c, s *big.Int, params *ZKPParameters) bool {
-	left1 := new(big.Int).Exp(params.g, s, params.p)
-	left1.Mul(left1, new(big.Int).Exp(y1, c, params.p))
-	left1.Mod(left1, params.p)
+	l1 := new(big.Int).Exp(params.g, s, params.p)
+	l1.Mul(l1, new(big.Int).Exp(y1, c, params.p))
+	l1.Mod(l1, params.p)
 
-	right1 := new(big.Int).Exp(r1, params.p, params.p)
-	if left1.Cmp(right1) != 0 {
+	if l1.Cmp(r1) != 0 {
 		return false
 	}
 
-	left2 := new(big.Int).Exp(params.h, s, params.p)
-	left2.Mul(left2, new(big.Int).Exp(y2, c, params.p))
-	left2.Mod(left2, params.p)
+	l2 := new(big.Int).Exp(params.h, s, params.p)
+	l2.Mul(l2, new(big.Int).Exp(y2, c, params.p))
+	l2.Mod(l2, params.p)
 
-	right2 := new(big.Int).Exp(r2, params.p, params.p)
-	return left2.Cmp(right2) == 0
+	return l2.Cmp(r2) == 0
 }
