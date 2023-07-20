@@ -11,6 +11,11 @@ compile:
 		--proto_path=.
 
 
+.PHONY: test
+test:
+	go test -race ./...
+
+
 .PHONY: gitbackup
 gitbackup:
 	sudo cp -rf ./.git  ${GITHUB_BACKUP_PATH}
