@@ -12,17 +12,20 @@ message RegisterRequest {
 
 message RegisterResponse {}
 
+// commitment step in the diag.
 message AuthenticationChallengeRequest {
     string user = 1;
     int64 r1 = 2;
     int64 r2 = 3;
 }
 
+// challenge step in the diag.
 message AuthenticationChallengeResponse {
     string auth_id = 1;
     int64 c = 2;
 }
 
+// response step in the fiag. 
 message AuthenticationAnswerRequest {
     string auth_id = 1;
     int64 s = 2;
