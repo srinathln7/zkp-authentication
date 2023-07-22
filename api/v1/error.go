@@ -21,7 +21,7 @@ func (e ErrInvalidChallengeResponse) GRPCStatus() *status.Status {
 	)
 
 	msg := fmt.Sprintf(
-		"Invalid response step provided by the prover (client): %d",
+		"Invalid challenge response provided by the prover (client): %d",
 		e.S,
 	)
 

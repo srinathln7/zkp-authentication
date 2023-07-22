@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	api "github.com/srinathLN7/zkp_auth/api/v1"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
+	"google.golang.org/grpc"
 )
 
 type CPZKP interface {
@@ -53,11 +54,23 @@ func newgrpcServer(config *Config) (*grpcServer, error) {
 	}, nil
 }
 
+// NewGRPCServer: creates a grpc server and registers the service to that server
+func NewGRPCSever(config *Config) (*grpc.Server, error) {
+	gsrv := grpc.NewServer()
+	srv, err := newgrpcServer(config)
+	if err != nil {
+		return nil, err
+	}
+	api.RegisterAuthServer(gsrv, srv)
+	return gsrv, nil
+}
+
 // Register: Simply registers a new grpc client (prover) on the server side
 // by storing the passed-in req body containing `y1` and `y2` values
 func (s *grpcServer) Register(ctx context.Context, req *api.RegisterRequest) (
 	*api.RegisterResponse, error) {
 
+	// ASSUMPTION: The `req.user` passed in for every user is UNIQUE
 	// Check if the user already exists
 	if _, userExists := s.RegDir[req.User]; userExists {
 		return nil, fmt.Errorf("user %s is already registered on the server", req.User)
@@ -144,7 +157,7 @@ func (s *grpcServer) VerifyAuthentication(ctx context.Context, req *api.Authenti
 	verifier := &cp_zkp.Verifier{}
 	isValidProof := verifier.VerifyProof(y1, y2, r1, r2, c, big.NewInt(req.S), cpzkpParams)
 	if !isValidProof {
-		return nil, api.ErrInvalidChallengeResponse{}
+		return nil, api.ErrInvalidChallengeResponse{S: req.S}
 	}
 
 	// If a valid proof is presented - then generate a sessionID and pass it as a response
