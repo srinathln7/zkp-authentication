@@ -8,7 +8,8 @@ import (
 // TestCPZKPProtocol tests the correctness of the Chaum-Pedersen Zero-Knowledge Proof (CP-ZKP) protocol.
 func TestCPZKPProtocol(t *testing.T) {
 
-	params1, err := InitCPZKPParams()
+	cpZKP := &CPZKP{}
+	params1, err := cpZKP.InitCPZKPParams()
 	if err != nil {
 		t.Errorf("Error generating ZKP parameters: %v", err)
 		return

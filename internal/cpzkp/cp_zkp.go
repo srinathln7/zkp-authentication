@@ -5,6 +5,9 @@ import (
 	"math/big"
 )
 
+type CPZKP struct {
+}
+
 // CPZKPParams represents the public parameters for the ZKP protocol.
 // p -> primeP, q -> primeQ, g -> generatorG, and h -> generatorH.
 type CPZKPParams struct {
@@ -20,8 +23,12 @@ type Prover struct {
 type Verifier struct {
 }
 
+func NewCPZKP() (*CPZKP, error) {
+	return &CPZKP{}, nil
+}
+
 // InitCPZKPParams initializes the Chaum-Pedersen ZKP protocol system params.
-func InitCPZKPParams() (*CPZKPParams, error) {
+func (zkp *CPZKP) InitCPZKPParams() (*CPZKPParams, error) {
 
 	params := &CPZKPParams{
 		p: new(big.Int),
