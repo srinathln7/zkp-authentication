@@ -10,7 +10,6 @@ import (
 
 	api "github.com/srinathLN7/zkp_auth/api/v1"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
-	"github.com/srinathLN7/zkp_auth/internal/server"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -25,7 +24,7 @@ func TestGRPCServer(t *testing.T) {
 	for sceanario, fn := range map[string]func(
 		t *testing.T,
 		grpcClient api.AuthClient,
-		config *server.Config,
+		config *Config,
 	){
 		"register user succesfully":       ClientRegisterUserSuccess,
 		"register user failure":           ClientRegisterUserFail,
@@ -40,9 +39,9 @@ func TestGRPCServer(t *testing.T) {
 	}
 }
 
-func setupGRPCClient(t *testing.T, fn func(*server.Config)) (
+func setupGRPCClient(t *testing.T, fn func(*Config)) (
 	grpcClient api.AuthClient,
-	cfg *server.Config,
+	cfg *Config,
 	teardown func(),
 ) {
 	// Helper marks the calling function as a test helper function. When printing file and line information, that function will be skipped
@@ -58,7 +57,7 @@ func setupGRPCClient(t *testing.T, fn func(*server.Config)) (
 	cpzkpParams, err := cp_zkp.NewCPZKP()
 	require.NoError(t, err)
 
-	cfg = &server.Config{
+	cfg = &Config{
 		CPZKP: cpzkpParams,
 	}
 
@@ -66,7 +65,7 @@ func setupGRPCClient(t *testing.T, fn func(*server.Config)) (
 		fn(cfg)
 	}
 
-	grpcServer, err := server.NewGRPCSever(cfg)
+	grpcServer, err := NewGRPCSever(cfg)
 	require.NoError(t, err)
 
 	go func() {
@@ -82,7 +81,7 @@ func setupGRPCClient(t *testing.T, fn func(*server.Config)) (
 	}
 }
 
-func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *server.Config) {
+func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *Config) {
 	ctx := context.Background()
 
 	// Prover(client) generates y1 and y2 values
@@ -109,7 +108,7 @@ func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *
 	require.Equal(t, res, recvRes)
 }
 
-func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *server.Config) {
+func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *Config) {
 	ctx := context.Background()
 
 	// Prover(client) generates y1 and y2 values
@@ -137,7 +136,7 @@ func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *ser
 	}
 }
 
-func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *server.Config) {
+func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *Config) {
 	ctx := context.Background()
 
 	// Verfication happens in two stages:
@@ -186,7 +185,7 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	}
 }
 
-func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *server.Config) {
+func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *Config) {
 	ctx := context.Background()
 
 	// Verfication happens in two steps:

@@ -73,11 +73,11 @@ func TestCPZKPProtocol(t *testing.T) {
 
 	// Test Soundness
 
-	// Create an invalid proof by changing r1
-	invalidR1 := new(big.Int).Add(r1, big.NewInt(1))
+	// Create an invalid response to the varifier's  challenge
+	invalidS := new(big.Int).Add(s, big.NewInt(1))
 
 	// Verifier discards the invalid proof
-	invalid := verifier.VerifyProof(y1, y2, invalidR1, r2, c, s, params1)
+	invalid := verifier.VerifyProof(y1, y2, r1, r2, c, invalidS, params1)
 	if invalid {
 		t.Errorf("Proof validation failed: Expected invalid proof, got valid")
 		return
