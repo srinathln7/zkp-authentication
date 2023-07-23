@@ -1,11 +1,10 @@
-package server
+package client
 
 import (
 	"context"
 	"fmt"
 	"math/big"
 	"net"
-	"os"
 	"testing"
 
 	api "github.com/srinathLN7/zkp_auth/api/v1"
@@ -16,31 +15,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// Run the tests
-func TestMain(m *testing.M) {
-	os.Exit(m.Run())
-}
-
-func TestGRPCServer(t *testing.T) {
-	for sceanario, fn := range map[string]func(
-		t *testing.T,
-		grpcClient api.AuthClient,
-		config *server.Config,
-	){
-		"register user succesfully":       ClientRegisterUserSuccess,
-		"register user failure":           ClientRegisterUserFail,
-		"verification proof successfully": ClientVerifyProofSuccess,
-		"verification proof failure":      ClientVerifyProofFail,
-	} {
-		t.Run(sceanario, func(t *testing.T) {
-			grpcClient, config, teardown := setupGRPCClient(t, nil)
-			defer teardown()
-			fn(t, grpcClient, config)
-		})
-	}
-}
-
-func setupGRPCClient(t *testing.T, fn func(*server.Config)) (
+func SetupGRPCClient(t *testing.T, fn func(*server.Config)) (
 	grpcClient api.AuthClient,
 	cfg *server.Config,
 	teardown func(),
