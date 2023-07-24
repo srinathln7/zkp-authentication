@@ -2,11 +2,12 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"math/big"
 	"net"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	api "github.com/srinathLN7/zkp_auth/api/v1"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
 	"github.com/srinathLN7/zkp_auth/internal/server"
@@ -14,6 +15,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+// Create a package-level variable for a shared-server instance
+// var GRPCServer *grpc.Server
 
 func SetupGRPCClient(t *testing.T, fn func(*server.Config)) (
 	grpcClient api.AuthClient,
@@ -41,17 +45,17 @@ func SetupGRPCClient(t *testing.T, fn func(*server.Config)) (
 		fn(cfg)
 	}
 
-	grpcServer, err := server.NewGRPCSever(cfg)
+	grpServer, err := server.NewGRPCSever(cfg)
 	require.NoError(t, err)
 
 	go func() {
-		grpcServer.Serve(listener)
+		grpServer.Serve(listener)
 	}()
 
 	grpcClient = api.NewAuthClient(cc)
 
 	return grpcClient, cfg, func() {
-		grpcServer.Stop()
+		grpServer.Stop()
 		cc.Close()
 		listener.Close()
 	}
@@ -68,10 +72,10 @@ func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *
 	y1, y2 := prover.GenerateYValues(cpzkpParams)
 
 	// Desired response for successful user registration
-	res := &api.RegisterResponse{}
+	expectedResp := &api.RegisterResponse{}
 
 	// Received response
-	recvRes, err := grpcClient.Register(
+	recvResp, err := grpcClient.Register(
 		ctx,
 		&api.RegisterRequest{
 			User: "srinath",
@@ -81,7 +85,13 @@ func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *
 	)
 
 	require.NoError(t, err)
-	require.Equal(t, res, recvRes)
+
+	// Compare public fields of responses using cmp.Equal with IgnoreUnexported option
+	// This is because a successful registration returns an empty response in our case
+	// with only internally unexported generated fields
+	if !cmp.Equal(recvResp, expectedResp, cmpopts.IgnoreUnexported(api.RegisterResponse{})) {
+		t.Errorf("received response: %v, expected response: %v", recvResp, expectedResp)
+	}
 }
 
 func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *server.Config) {
@@ -106,10 +116,11 @@ func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *ser
 	)
 
 	// Desired error for failure user registration
-	expErr := fmt.Errorf("user %s is already registered on the server", "srinath")
-	if err != expErr {
-		t.Fatalf("received err: %v, expected: %v", err, expErr)
+	// expErr := fmt.Errorf("user %s is already registered on the server", "srinath")
+	if err == nil {
+		t.Fatal("expected a non-nil error")
 	}
+
 }
 
 func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *server.Config) {

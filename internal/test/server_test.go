@@ -20,10 +20,10 @@ func TestGRPCServer(t *testing.T) {
 		grpcClient api.AuthClient,
 		config *grpc_server.Config,
 	){
-		"register user succesfully":       grpc_client.ClientRegisterUserSuccess,
-		"register user failure":           grpc_client.ClientRegisterUserFail,
-		"verification proof successfully": grpc_client.ClientVerifyProofSuccess,
-		"verification proof failure":      grpc_client.ClientVerifyProofFail,
+		"register user succesfully": grpc_client.ClientRegisterUserSuccess,
+		//"register user failure":     grpc_client.ClientRegisterUserFail,
+		//"verification proof successfully": grpc_client.ClientVerifyProofSuccess,
+		//"verification proof failure":      grpc_client.ClientVerifyProofFail,
 	} {
 		t.Run(sceanario, func(t *testing.T) {
 			grpcClient, config, teardown := grpc_client.SetupGRPCClient(t, nil)

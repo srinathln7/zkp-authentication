@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/big"
 
 	"github.com/google/uuid"
@@ -72,6 +73,8 @@ func (s *grpcServer) Register(ctx context.Context, req *api.RegisterRequest) (
 
 	// ASSUMPTION: The `req.user` passed in for every user is UNIQUE
 	// Check if the user already exists
+
+	log.Println(s.RegDir[req.User])
 	if _, userExists := s.RegDir[req.User]; userExists {
 		return nil, fmt.Errorf("user %s is already registered on the server", req.User)
 	}
