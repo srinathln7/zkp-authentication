@@ -16,15 +16,14 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// Create a package-level variable for a shared-server instance
-// var GRPCServer *grpc.Server
-
+// SetupGRPCClient: sets up the grpc client given the server config
 func SetupGRPCClient(t *testing.T, fn func(*server.Config)) (
 	grpcClient api.AuthClient,
 	cfg *server.Config,
 	teardown func(),
 ) {
-	// Helper marks the calling function as a test helper function. When printing file and line information, that function will be skipped
+	// Helper marks the calling function as a test helper function.
+	// When printing file and line information, that function will be skipped
 	t.Helper()
 
 	listener, err := net.Listen("tcp", ":0")
@@ -115,8 +114,7 @@ func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *ser
 		},
 	)
 
-	// Desired error for failure user registration
-	// expErr := fmt.Errorf("user %s is already registered on the server", "srinath")
+	// We expect a non-nil error
 	if err == nil {
 		t.Fatal("expected a non-nil error")
 	}
