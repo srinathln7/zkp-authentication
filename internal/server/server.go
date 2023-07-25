@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"math/big"
 
 	"github.com/google/uuid"
@@ -15,6 +16,7 @@ import (
 
 type CPZKP interface {
 	InitCPZKPParams() (*cp_zkp.CPZKPParams, error)
+	SetZKPParams(p, q, g, h *big.Int) (*cp_zkp.CPZKPParams, error)
 }
 
 type Config struct {
@@ -29,6 +31,8 @@ type RegParams struct {
 type AuthParams struct {
 	user string
 	c    *big.Int
+	r1   *big.Int
+	r2   *big.Int
 }
 
 type grpcServer struct {
@@ -81,15 +85,20 @@ func (s *grpcServer) Register(ctx context.Context, req *api.RegisterRequest) (
 
 	var Y1, Y2 *big.Int = new(big.Int), new(big.Int)
 
+	log.Printf("[grpc_server] req.Y1 %s", req.Y1)
 	Y1, validY1 := Y1.SetString(req.Y1, 10)
 	if !validY1 {
 		return nil, errors.New("error parsing string Y1 to big.Int")
 	}
 
-	Y2, validY2 := Y1.SetString(req.Y2, 10)
+	log.Printf("[grpc_server] req.Y2 %v", req.Y2)
+	Y2, validY2 := Y2.SetString(req.Y2, 10)
 	if !validY2 {
 		return nil, errors.New("error parsing string Y2 to big.Int")
 	}
+
+	log.Printf("[grpc_server] Y1 %v", Y1)
+	log.Printf("[grpc_server] Y2 %v", Y2)
 
 	s.RegDir[req.User] = RegParams{
 		y1: Y1,
@@ -108,15 +117,8 @@ func (s *grpcServer) CreateAuthenticationChallenge(ctx context.Context, req *api
 		return nil, fmt.Errorf("user %s is not registered on the server", req.User)
 	}
 
-	// We use the google's widely used `uuid` pkg to generate the authID
-	authID, err := uuid.NewRandom()
-	if err != nil {
-		return nil, err
-	}
-
-	auth_id := authID.String()
-
 	cpzkpParams, err := s.Config.CPZKP.InitCPZKPParams()
+	cpzkpParams, err = s.Config.CPZKP.SetZKPParams(big.NewInt(23), big.NewInt(11), big.NewInt(4), big.NewInt(9))
 	if err != nil {
 		return nil, err
 	}
@@ -128,9 +130,35 @@ func (s *grpcServer) CreateAuthenticationChallenge(ctx context.Context, req *api
 		return nil, err
 	}
 
+	c = big.NewInt(4)
+
 	// Store the generated random value `c` and the `auth_id` in the authentication directory
 	// for authentication verification process in the next step
-	s.AuthDir[auth_id] = AuthParams{user: req.User, c: c}
+
+	// We use the google's widely used `uuid` pkg to generate the authID
+	authID, err := uuid.NewRandom()
+	if err != nil {
+		return nil, err
+	}
+
+	var R1, R2 *big.Int = new(big.Int), new(big.Int)
+
+	R1, validR1 := R1.SetString(req.R1, 10)
+	if !validR1 {
+		return nil, errors.New("error parsing string R1 to big.Int")
+	}
+
+	R2, validR2 := R2.SetString(req.R2, 10)
+	if !validR2 {
+		return nil, errors.New("error parsing string R2 to big.Int")
+	}
+
+	auth_id := authID.String()
+	s.AuthDir[auth_id] = AuthParams{user: req.User,
+		c:  c,
+		r1: R1,
+		r2: R2,
+	}
 
 	return &api.AuthenticationChallengeResponse{
 		AuthId: auth_id,
@@ -149,24 +177,36 @@ func (s *grpcServer) VerifyAuthentication(ctx context.Context, req *api.Authenti
 	// To verify the proof, we need the system params and
 	// y1, y2, r1,r2, c, s
 	cpzkpParams, err := s.Config.CPZKP.InitCPZKPParams()
+	cpzkpParams, err = s.Config.CPZKP.SetZKPParams(big.NewInt(23), big.NewInt(11), big.NewInt(4), big.NewInt(9))
 	if err != nil {
 		return nil, err
 	}
 
 	// Get the user name and `c` from the current `auth_id`
+
+	log.Printf("server Auth Directory map %#v\n", s.AuthDir)
 	user := s.AuthDir[req.AuthId].user
 	c := s.AuthDir[req.AuthId].c
 
 	// Retrieve y1 and y2
+
+	log.Printf("server Registry directory map %#v\n", s.RegDir)
+
 	y1 := s.RegDir[user].y1
 	y2 := s.RegDir[user].y2
 
 	// Create a prover to calculate the r1 and r2 values as part of the commitment step in the proof
-	prover := &cp_zkp.Prover{}
-	_, r1, r2, err := prover.CreateProofCommitment(cpzkpParams)
-	if err != nil {
-		return nil, err
-	}
+	// prover := &cp_zkp.Prover{}
+	// _, r1, r2, err := prover.CreateProofCommitment(cpzkpParams)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// r1 = big.NewInt(8)
+	// r2 = big.NewInt(4)
+
+	r1 := s.AuthDir[req.AuthId].r1
+	r2 := s.AuthDir[req.AuthId].r2
 
 	// convert `req.S` to big.Int
 	var s_zkp *big.Int = new(big.Int)

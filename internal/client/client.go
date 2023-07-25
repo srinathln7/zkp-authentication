@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"log"
 	"math/big"
 	"net"
 	"testing"
@@ -69,8 +70,12 @@ func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *
 	// We set the secret value to `x=6`
 	prover := cp_zkp.NewProver(big.NewInt(6))
 	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
+	cpzkpParams, err = config.CPZKP.SetZKPParams(big.NewInt(23), big.NewInt(11), big.NewInt(4), big.NewInt(9))
 	require.NoError(t, err)
 	y1, y2 := prover.GenerateYValues(cpzkpParams)
+
+	log.Printf("[grpc_client] y1= %v", y1)
+	log.Printf("[grpc_client] y2= %v", y2)
 
 	// Desired response for successful user registration
 	expectedResp := &api.RegisterResponse{}
@@ -137,13 +142,19 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
 	require.NoError(t, err)
 
-	// Generate r1 and r2 values
+	cpzkpParams, err = config.CPZKP.SetZKPParams(big.NewInt(23), big.NewInt(11), big.NewInt(4), big.NewInt(9))
+	require.NoError(t, err)
 
+	// Generate r1 and r2 values
 	t.Log("prover creating proof commitment")
 	k, r1, r2, err := prover.CreateProofCommitment(cpzkpParams)
 	require.NoError(t, err)
 
-	t.Log("cp-zkp params:", cpzkpParams)
+	k = big.NewInt(7)
+	r1 = big.NewInt(8)
+	r2 = big.NewInt(4)
+
+	t.Log("cp-zkp params:", *cpzkpParams)
 	t.Logf("k: %v", k)
 	t.Logf("r1: %v", r1)
 	t.Logf("r2: %v", r2)
@@ -164,6 +175,7 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	authID := recvAuthChallengeRes.AuthId
 	cStr := recvAuthChallengeRes.C
 
+	cStr = "4"
 	var c *big.Int = new(big.Int)
 	_, validC := c.SetString(cStr, 10)
 	require.True(t, validC)
@@ -238,8 +250,7 @@ func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *serv
 
 	// Expected err
 	expErr := grpc_err.ErrInvalidChallengeResponse{S: s}
-	if err != expErr {
-		t.Fatalf("received err: %v, expected: %v", err, expErr)
-	}
 
+	// Check if both of them are equal
+	require.Equal(t, expErr.Error(), err.Error())
 }

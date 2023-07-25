@@ -31,7 +31,7 @@ func TestGRPCServer(t *testing.T) {
 		"register user succesfully":       grpc_client.ClientRegisterUserSuccess,
 		"register user failure":           grpc_client.ClientRegisterUserFail,
 		"verification proof successfully": grpc_client.ClientVerifyProofSuccess,
-		//"verification proof failure":      grpc_client.ClientVerifyProofFail,
+		"verification proof failure":      grpc_client.ClientVerifyProofFail,
 	} {
 		t.Run(sceanario, func(t *testing.T) {
 			fn(t, grpcClient, config)

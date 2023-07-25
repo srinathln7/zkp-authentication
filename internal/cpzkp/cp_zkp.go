@@ -2,6 +2,8 @@ package cp_zkp
 
 import (
 	"crypto/rand"
+	"errors"
+	"log"
 	"math/big"
 )
 
@@ -46,6 +48,15 @@ func (zkp *CPZKP) InitCPZKPParams() (*CPZKPParams, error) {
 	return params, nil
 }
 
+func (zkp *CPZKP) SetZKPParams(p, q, g, h *big.Int) (*CPZKPParams, error) {
+	return &CPZKPParams{
+		p: p,
+		q: q,
+		g: g,
+		h: h,
+	}, nil
+}
+
 // NewProver creates a new Prover with the given secret password x.
 func NewProver(x *big.Int) *Prover {
 	return &Prover{
@@ -78,7 +89,7 @@ func (p *Prover) CreateProofCommitment(params *CPZKPParams) (k, r1, r2 *big.Int,
 }
 
 // CreateProofChallenge: verifier creates a challenge to the prover by generating a random big integer
-// which will be subsequently used by the prover in the `CreateProofChallengeResponse` step
+// `c` which will be subsequently used by the prover in the `CreateProofChallengeResponse` step
 func (v *Verifier) CreateProofChallenge(params *CPZKPParams) (c *big.Int, err error) {
 	// Generate a random `c` using cryptographically secure random number generator.
 	c, err = rand.Int(rand.Reader, params.q)
@@ -112,10 +123,19 @@ func (p *Prover) CreateProofChallengeResponse(k, c *big.Int, params *CPZKPParams
 // If both checks pass, the proof is valid, and the function returns true; otherwise, it returns false.
 func (v *Verifier) VerifyProof(y1, y2, r1, r2, c, s *big.Int, params *CPZKPParams) bool {
 
+	log.Printf("[cp_zkp] y1 = %v", y1)
+	log.Printf("[cp_zkp] y2 = %v", y2)
+	log.Printf("[cp_zkp] r1 = %v", r1)
+	log.Printf("[cp_zkp] r2 = %v", r2)
+	log.Printf("[cp_zkp] c = %v", c)
+	log.Printf("[cp_zkp] s = %v", s)
+
 	// Remember: (ab) mod p = ( (a mod p) (b mod p)) mod p
 	l1 := new(big.Int).Exp(params.g, s, params.p) // g^s .mod p
 	l1.Mul(l1, new(big.Int).Exp(y1, c, params.p)) // y1^c mod p
 	l1.Mod(l1, params.p)                          // (g^s mod p) (y1 ^c mod p) mod p = (g^s . y1^c). mod p
+
+	log.Printf("[cp_zkp] l1 = %v", l1)
 
 	if l1.Cmp(r1) != 0 {
 		return false
@@ -125,5 +145,16 @@ func (v *Verifier) VerifyProof(y1, y2, r1, r2, c, s *big.Int, params *CPZKPParam
 	l2.Mul(l2, new(big.Int).Exp(y2, c, params.p))
 	l2.Mod(l2, params.p)
 
+	log.Printf("l2 = %v", l2)
+
 	return l2.Cmp(r2) == 0
+}
+
+func ParseBigInt(str string) (*big.Int, error) {
+	bigInt := new(big.Int)
+	bigInt, valid := bigInt.SetString(str, 10)
+	if !valid {
+		return nil, errors.New("error parsing string to big.Int")
+	}
+	return bigInt, nil
 }
