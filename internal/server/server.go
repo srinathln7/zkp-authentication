@@ -2,11 +2,13 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/big"
 
 	"github.com/google/uuid"
-	api "github.com/srinathLN7/zkp_auth/api/v1"
+	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
+	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
 	"google.golang.org/grpc"
 )
@@ -77,9 +79,21 @@ func (s *grpcServer) Register(ctx context.Context, req *api.RegisterRequest) (
 		return nil, fmt.Errorf("user %s is already registered on the server", req.User)
 	}
 
+	var Y1, Y2 *big.Int = new(big.Int), new(big.Int)
+
+	Y1, validY1 := Y1.SetString(req.Y1, 10)
+	if !validY1 {
+		return nil, errors.New("error parsing string Y1 to big.Int")
+	}
+
+	Y2, validY2 := Y1.SetString(req.Y2, 10)
+	if !validY2 {
+		return nil, errors.New("error parsing string Y2 to big.Int")
+	}
+
 	s.RegDir[req.User] = RegParams{
-		y1: big.NewInt(req.Y1),
-		y2: big.NewInt(req.Y2),
+		y1: Y1,
+		y2: Y2,
 	}
 
 	return &api.RegisterResponse{}, nil
@@ -120,7 +134,7 @@ func (s *grpcServer) CreateAuthenticationChallenge(ctx context.Context, req *api
 
 	return &api.AuthenticationChallengeResponse{
 		AuthId: auth_id,
-		C:      c.Int64(),
+		C:      c.String(),
 	}, nil
 }
 
@@ -154,11 +168,19 @@ func (s *grpcServer) VerifyAuthentication(ctx context.Context, req *api.Authenti
 		return nil, err
 	}
 
+	// convert `req.S` to big.Int
+	var s_zkp *big.Int = new(big.Int)
+
+	_, validS := s_zkp.SetString(req.S, 10)
+	if !validS {
+		return nil, errors.New("error parsing string `S` to big.Int")
+	}
+
 	// Create a verifier to verify the challenge
 	verifier := &cp_zkp.Verifier{}
-	isValidProof := verifier.VerifyProof(y1, y2, r1, r2, c, big.NewInt(req.S), cpzkpParams)
+	isValidProof := verifier.VerifyProof(y1, y2, r1, r2, c, s_zkp, cpzkpParams)
 	if !isValidProof {
-		return nil, api.ErrInvalidChallengeResponse{S: req.S}
+		return nil, grpc_err.ErrInvalidChallengeResponse{S: req.S}
 	}
 
 	// If a valid proof is presented - then generate a sessionID and pass it as a response

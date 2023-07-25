@@ -8,12 +8,14 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	api "github.com/srinathLN7/zkp_auth/api/v1"
+	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
 	"github.com/srinathLN7/zkp_auth/internal/server"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
 )
 
 // SetupGRPCClient: sets up the grpc client given the server config
@@ -78,8 +80,8 @@ func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *
 		ctx,
 		&api.RegisterRequest{
 			User: "srinath",
-			Y1:   y1.Int64(),
-			Y2:   y2.Int64(),
+			Y1:   y1.String(),
+			Y2:   y2.String(),
 		},
 	)
 
@@ -109,8 +111,8 @@ func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *ser
 		ctx,
 		&api.RegisterRequest{
 			User: "srinath",
-			Y1:   y1.Int64(),
-			Y2:   y2.Int64(),
+			Y1:   y1.String(),
+			Y2:   y2.String(),
 		},
 	)
 
@@ -153,14 +155,18 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 		ctx,
 		&api.AuthenticationChallengeRequest{
 			User: "srinath",
-			R1:   r1.Int64(),
-			R2:   r2.Int64(),
+			R1:   r1.String(),
+			R2:   r2.String(),
 		},
 	)
 	require.NoError(t, err)
 
 	authID := recvAuthChallengeRes.AuthId
-	c := recvAuthChallengeRes.C
+	cStr := recvAuthChallengeRes.C
+
+	var c *big.Int = new(big.Int)
+	_, validC := c.SetString(cStr, 10)
+	require.True(t, validC)
 
 	t.Logf("c: %v", c)
 
@@ -169,7 +175,7 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	// Prover responds to the verifiers challenge
 
 	t.Log("step 2: verify authentication")
-	s := prover.CreateProofChallengeResponse(k, big.NewInt(c), cpzkpParams)
+	s := prover.CreateProofChallengeResponse(k, c, cpzkpParams)
 
 	t.Logf("s: %v", s)
 
@@ -179,7 +185,7 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 		ctx,
 		&api.AuthenticationAnswerRequest{
 			AuthId: authID,
-			S:      s.Int64(),
+			S:      s.String(),
 		},
 	)
 
@@ -208,8 +214,8 @@ func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *serv
 		ctx,
 		&api.AuthenticationChallengeRequest{
 			User: "srinath",
-			R1:   r1.Int64(),
-			R2:   r2.Int64(),
+			R1:   r1.String(),
+			R2:   r2.String(),
 		},
 	)
 	require.NoError(t, err)
@@ -219,7 +225,7 @@ func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *serv
 	// Prover responds to the verifiers challenge incorrectly
 	// Compute `s = (k - c * x) mod q`. Since prover has no knowledge of `x`, he cannot compute s correctly
 	// Prover responds incorrectly to the verifiers challenge
-	s := int64(555)
+	s := "555"
 
 	// Create verification step
 	_, err = grpcClient.VerifyAuthentication(
@@ -231,7 +237,7 @@ func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *serv
 	)
 
 	// Expected err
-	expErr := api.ErrInvalidChallengeResponse{S: s}
+	expErr := grpc_err.ErrInvalidChallengeResponse{S: s}
 	if err != expErr {
 		t.Fatalf("received err: %v, expected: %v", err, expErr)
 	}

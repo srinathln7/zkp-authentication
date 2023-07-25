@@ -1,0 +1,42 @@
+syntax = "proto3";
+package zkp_auth;
+
+option go_package = "github.com/srinathLN7/api/zkp_auth";
+
+
+message RegisterRequest {
+    string user = 1;
+    string y1 = 2;
+    string y2 = 3;
+}
+
+message RegisterResponse {}
+
+// commitment step in the diag.
+message AuthenticationChallengeRequest {
+    string user = 1;
+    string r1 = 2;
+    string r2 = 3;
+}
+
+// challenge step in the diag.
+message AuthenticationChallengeResponse {
+    string auth_id = 1;
+    string c = 2;
+}
+
+// response step in the fiag. 
+message AuthenticationAnswerRequest {
+    string auth_id = 1;
+    string s = 2;
+}
+
+message AuthenticationAnswerResponse {
+    string session_id = 1;
+}
+
+service Auth {
+    rpc Register(RegisterRequest) returns (RegisterResponse) {}
+    rpc CreateAuthenticationChallenge(AuthenticationChallengeRequest) returns (AuthenticationChallengeResponse) {}
+    rpc VerifyAuthentication(AuthenticationAnswerRequest) returns (AuthenticationAnswerResponse) {}
+}

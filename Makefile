@@ -3,7 +3,7 @@ GITHUB_BACKUP_PATH=${HOME}/go/src/github.com/srinathLN7/gitbackup/zkp-authentica
 
 .PHONY: compile
 compile:
-	protoc api/v1/*.proto \
+	protoc api/v2/proto/*.proto \
 		--go_out=. \
 		--go-grpc_out=. \
 		--go_opt=paths=source_relative \

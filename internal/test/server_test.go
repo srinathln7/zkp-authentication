@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	api "github.com/srinathLN7/zkp_auth/api/v1"
+	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	grpc_client "github.com/srinathLN7/zkp_auth/internal/client"
 	grpc_server "github.com/srinathLN7/zkp_auth/internal/server"
 )
@@ -28,9 +28,9 @@ func TestGRPCServer(t *testing.T) {
 		grpcClient api.AuthClient,
 		config *grpc_server.Config,
 	){
-		"register user succesfully": grpc_client.ClientRegisterUserSuccess,
-		"register user failure":     grpc_client.ClientRegisterUserFail,
-		//"verification proof successfully": grpc_client.ClientVerifyProofSuccess,
+		"register user succesfully":       grpc_client.ClientRegisterUserSuccess,
+		"register user failure":           grpc_client.ClientRegisterUserFail,
+		"verification proof successfully": grpc_client.ClientVerifyProofSuccess,
 		//"verification proof failure":      grpc_client.ClientVerifyProofFail,
 	} {
 		t.Run(sceanario, func(t *testing.T) {
