@@ -128,16 +128,27 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 
 	// Step 1) Create Authentication Challenge
 
+	t.Log("step 1: creating authentication challenge")
+
 	// We set the correct secret value to `x=6`
 	prover := cp_zkp.NewProver(big.NewInt(6))
 	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
 	require.NoError(t, err)
 
 	// Generate r1 and r2 values
+
+	t.Log("prover creating proof commitment")
 	k, r1, r2, err := prover.CreateProofCommitment(cpzkpParams)
 	require.NoError(t, err)
 
+	t.Log("cp-zkp params:", cpzkpParams)
+	t.Logf("k: %v", k)
+	t.Logf("r1: %v", r1)
+	t.Logf("r2: %v", r2)
+
 	// Create authentication challenge for user `srinath`
+
+	t.Log("authentication challenge - connecting to grpc client")
 	recvAuthChallengeRes, err := grpcClient.CreateAuthenticationChallenge(
 		ctx,
 		&api.AuthenticationChallengeRequest{
@@ -151,12 +162,19 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	authID := recvAuthChallengeRes.AuthId
 	c := recvAuthChallengeRes.C
 
+	t.Logf("c: %v", c)
+
 	// Step 2) Verify Authentication
 
 	// Prover responds to the verifiers challenge
+
+	t.Log("step 2: verify authentication")
 	s := prover.CreateProofChallengeResponse(k, big.NewInt(c), cpzkpParams)
 
+	t.Logf("s: %v", s)
+
 	// Create verification step
+	t.Log("verify authentication - connecting to grpc client")
 	_, err = grpcClient.VerifyAuthentication(
 		ctx,
 		&api.AuthenticationAnswerRequest{

@@ -20,6 +20,9 @@ func TestGRPCServer(t *testing.T) {
 	// Hence, we setup the grpc client before running each of the individual test cases
 	grpcClient, config, teardown := grpc_client.SetupGRPCClient(t, nil)
 
+	// gracefully shutdown the server after running all the test cases
+	defer teardown()
+
 	for sceanario, fn := range map[string]func(
 		t *testing.T,
 		grpcClient api.AuthClient,
@@ -31,7 +34,6 @@ func TestGRPCServer(t *testing.T) {
 		//"verification proof failure":      grpc_client.ClientVerifyProofFail,
 	} {
 		t.Run(sceanario, func(t *testing.T) {
-			defer teardown()
 			fn(t, grpcClient, config)
 		})
 	}
