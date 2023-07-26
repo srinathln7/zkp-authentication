@@ -55,6 +55,7 @@ type grpcServer struct {
 var _ api.AuthServer = (*grpcServer)(nil)
 
 func RunServer(config *Config) {
+
 	// Create a new gRPC server and register the service
 	grpcServer, err := NewGRPCSever(config)
 	if err != nil {

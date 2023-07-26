@@ -45,28 +45,41 @@ func RunClient(user, password string) {
 	grpcClient := api.NewAuthClient(conn)
 
 	// Run your client call logics
-
 	client := &Client{}
-
-	cpzkpParams := client.getCPZKPParams()
-	x := client.getSecretValue(password)
-
-	client.Register(grpcClient, user, cpzkpParams, x)
-	client.LogIn(grpcClient, user, cpzkpParams, x)
+	client.Register(grpcClient, user, password)
+	client.LogIn(grpcClient, user, password)
 }
 
 // RegisterUser Registers the user with the given password and returns a message, if successful
-func (c *Client) Register(grpcClient api.AuthClient, user string, cpzkpParams *cp_zkp.CPZKPParams, x *big.Int) (*RegRes, error) {
+// RegisterUser Registers the user with the given password and returns a message, if successful
+func (c *Client) Register(grpcClient api.AuthClient, user, password string) (*RegRes, error) {
 	ctx := context.Background()
 
+	// Generate the system parameters
+	cpzkp, err := cp_zkp.NewCPZKP()
+	if err != nil {
+		log.Fatal(err)
+		return nil, grpc_err.ErrRegistrationFailed
+	}
+
+	cpzkpParams, err := cpzkp.InitCPZKPParams()
+	if err != nil {
+		log.Fatal(err)
+		return nil, grpc_err.ErrRegistrationFailed
+	}
+
+	// Get the secret value `x` by converting the password uniquely to big Int
+	x := c.getSecretValue(password)
+
 	// Create a new Prover (Client) based on the generated secret value `x`
+	// to calculate the y1 and y2 params
 	client := cp_zkp.NewProver(x)
 
 	// Prover(client) generates y1 and y2 values
 	y1, y2 := client.GenerateYValues(cpzkpParams)
 
 	// Received response
-	_, err := grpcClient.Register(
+	_, err = grpcClient.Register(
 		ctx,
 		&api.RegisterRequest{
 			User: user,
@@ -87,10 +100,28 @@ func (c *Client) Register(grpcClient api.AuthClient, user string, cpzkpParams *c
 
 // LogIn : Validates the login credentials using the Chaum-Pedersen Zero-Knowledge Proof
 // protocol and returns a succesful message for a valid login
-func (c *Client) LogIn(grpcClient api.AuthClient, user string, cpzkpParams *cp_zkp.CPZKPParams, x *big.Int) (*LogInRes, error) {
+func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) {
+
 	ctx := context.Background()
 
+	// Generate the system parameters
+	cpzkp, err := cp_zkp.NewCPZKP()
+	if err != nil {
+		log.Fatal(err)
+		return nil, grpc_err.ErrLoginFailed
+	}
+
+	cpzkpParams, err := cpzkp.InitCPZKPParams()
+	if err != nil {
+		log.Fatal(err)
+		return nil, grpc_err.ErrLoginFailed
+	}
+
+	// Get the secret value `x` by converting the password uniquely to big Int
+	x := c.getSecretValue(password)
+
 	// Create a new Prover (Client) based on the generated secret value `x`
+	// to calculate the r1 and r2 params for committing the proof
 	client := cp_zkp.NewProver(x)
 
 	k, r1, r2, err := client.CreateProofCommitment(cpzkpParams)
@@ -122,6 +153,7 @@ func (c *Client) LogIn(grpcClient api.AuthClient, user string, cpzkpParams *cp_z
 	}
 
 	// Challenge response
+
 	s := client.CreateProofChallengeResponse(k, C, cpzkpParams)
 
 	// Verification Step
@@ -141,24 +173,7 @@ func (c *Client) LogIn(grpcClient api.AuthClient, user string, cpzkpParams *cp_z
 	return &LogInRes{
 		SessionId: verifyRes.SessionId,
 	}, nil
-}
 
-// getCPZKPParams generates the system parameters
-func (c *Client) getCPZKPParams() *cp_zkp.CPZKPParams {
-	// Generate the system parameters
-	cpzkp, err := cp_zkp.NewCPZKP()
-	if err != nil {
-		log.Fatal(err)
-		return nil
-	}
-
-	cpzkpParams, err := cpzkp.InitCPZKPParams()
-	if err != nil {
-		log.Fatal(err)
-		return nil
-	}
-
-	return cpzkpParams
 }
 
 // getSecretValue gets the secret value `x` by converting the password uniquely to big Int
