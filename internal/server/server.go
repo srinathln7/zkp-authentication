@@ -16,7 +16,6 @@ import (
 
 type CPZKP interface {
 	InitCPZKPParams() (*cp_zkp.CPZKPParams, error)
-	SetZKPParams(p, q, g, h *big.Int) (*cp_zkp.CPZKPParams, error)
 }
 
 type Config struct {
@@ -85,20 +84,15 @@ func (s *grpcServer) Register(ctx context.Context, req *api.RegisterRequest) (
 
 	var Y1, Y2 *big.Int = new(big.Int), new(big.Int)
 
-	log.Printf("[grpc_server] req.Y1 %s", req.Y1)
 	Y1, validY1 := Y1.SetString(req.Y1, 10)
 	if !validY1 {
 		return nil, errors.New("error parsing string Y1 to big.Int")
 	}
 
-	log.Printf("[grpc_server] req.Y2 %v", req.Y2)
 	Y2, validY2 := Y2.SetString(req.Y2, 10)
 	if !validY2 {
 		return nil, errors.New("error parsing string Y2 to big.Int")
 	}
-
-	log.Printf("[grpc_server] Y1 %v", Y1)
-	log.Printf("[grpc_server] Y2 %v", Y2)
 
 	s.RegDir[req.User] = RegParams{
 		y1: Y1,
@@ -118,7 +112,6 @@ func (s *grpcServer) CreateAuthenticationChallenge(ctx context.Context, req *api
 	}
 
 	cpzkpParams, err := s.Config.CPZKP.InitCPZKPParams()
-	cpzkpParams, err = s.Config.CPZKP.SetZKPParams(big.NewInt(23), big.NewInt(11), big.NewInt(4), big.NewInt(9))
 	if err != nil {
 		return nil, err
 	}
@@ -129,8 +122,6 @@ func (s *grpcServer) CreateAuthenticationChallenge(ctx context.Context, req *api
 	if err != nil {
 		return nil, err
 	}
-
-	c = big.NewInt(4)
 
 	// Store the generated random value `c` and the `auth_id` in the authentication directory
 	// for authentication verification process in the next step
@@ -177,7 +168,6 @@ func (s *grpcServer) VerifyAuthentication(ctx context.Context, req *api.Authenti
 	// To verify the proof, we need the system params and
 	// y1, y2, r1,r2, c, s
 	cpzkpParams, err := s.Config.CPZKP.InitCPZKPParams()
-	cpzkpParams, err = s.Config.CPZKP.SetZKPParams(big.NewInt(23), big.NewInt(11), big.NewInt(4), big.NewInt(9))
 	if err != nil {
 		return nil, err
 	}
@@ -194,23 +184,11 @@ func (s *grpcServer) VerifyAuthentication(ctx context.Context, req *api.Authenti
 
 	y1 := s.RegDir[user].y1
 	y2 := s.RegDir[user].y2
-
-	// Create a prover to calculate the r1 and r2 values as part of the commitment step in the proof
-	// prover := &cp_zkp.Prover{}
-	// _, r1, r2, err := prover.CreateProofCommitment(cpzkpParams)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// r1 = big.NewInt(8)
-	// r2 = big.NewInt(4)
-
 	r1 := s.AuthDir[req.AuthId].r1
 	r2 := s.AuthDir[req.AuthId].r2
 
 	// convert `req.S` to big.Int
 	var s_zkp *big.Int = new(big.Int)
-
 	_, validS := s_zkp.SetString(req.S, 10)
 	if !validS {
 		return nil, errors.New("error parsing string `S` to big.Int")

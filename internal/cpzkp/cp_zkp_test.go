@@ -40,28 +40,6 @@ func TestCPZKPProtocol(t *testing.T) {
 	// Prover responds to the challenge and generates s
 	s := prover.CreateProofChallengeResponse(k, c, params1)
 
-	// Debug information
-	// t.Log("cp-zkp params: p=", params1.p, " q=", params1.q, " g=", params1.g, " h=", params1.h)
-	// t.Logf("y1: %v", y1)
-	// t.Logf("y2: %v", y2)
-	// t.Logf("r1: %v", r1)
-	// t.Logf("r2: %v", r2)
-	// t.Logf("c: %v", c)
-	// t.Logf("s: %v", s)
-
-	// Calculate (g^s * y1^c) mod p
-	// exp1 := new(big.Int).Exp(y1, c, params1.p)
-	// tmp1 := new(big.Int).Mul(exp1, new(big.Int).Exp(params1.g, s, params1.p))
-	// tmp1.Mod(tmp1, params1.p)
-
-	// t.Logf("(g^s * y1^c) mod p: %v", tmp1)
-
-	// exp2 := new(big.Int).Exp(y2, c, params1.p)
-	// tmp2 := new(big.Int).Mul(new(big.Int).Exp(params1.h, s, params1.p), exp2)
-	// tmp2.Mod(tmp1, params1.p)
-
-	// t.Logf("(h^s * y2^c) mod p: %v", tmp2)
-
 	// Test Correctness
 
 	// Verifier verifies the proof

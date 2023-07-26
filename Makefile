@@ -13,7 +13,7 @@ compile:
 
 .PHONY: test
 test:
-	go test -race ./...
+	go test -race -parallel=1 -count=1 ./...
 
 
 .PHONY: gitbackup

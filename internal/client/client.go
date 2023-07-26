@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"log"
 	"math/big"
 	"net"
 	"testing"
@@ -70,12 +69,8 @@ func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *
 	// We set the secret value to `x=6`
 	prover := cp_zkp.NewProver(big.NewInt(6))
 	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
-	cpzkpParams, err = config.CPZKP.SetZKPParams(big.NewInt(23), big.NewInt(11), big.NewInt(4), big.NewInt(9))
 	require.NoError(t, err)
 	y1, y2 := prover.GenerateYValues(cpzkpParams)
-
-	log.Printf("[grpc_client] y1= %v", y1)
-	log.Printf("[grpc_client] y2= %v", y2)
 
 	// Desired response for successful user registration
 	expectedResp := &api.RegisterResponse{}
@@ -138,26 +133,14 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	t.Log("step 1: creating authentication challenge")
 
 	// We set the correct secret value to `x=6`
-	prover := cp_zkp.NewProver(big.NewInt(6))
+	proverS := cp_zkp.NewProver(big.NewInt(6))
 	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
-	require.NoError(t, err)
-
-	cpzkpParams, err = config.CPZKP.SetZKPParams(big.NewInt(23), big.NewInt(11), big.NewInt(4), big.NewInt(9))
 	require.NoError(t, err)
 
 	// Generate r1 and r2 values
 	t.Log("prover creating proof commitment")
-	k, r1, r2, err := prover.CreateProofCommitment(cpzkpParams)
+	k, r1, r2, err := proverS.CreateProofCommitment(cpzkpParams)
 	require.NoError(t, err)
-
-	k = big.NewInt(7)
-	r1 = big.NewInt(8)
-	r2 = big.NewInt(4)
-
-	t.Log("cp-zkp params:", *cpzkpParams)
-	t.Logf("k: %v", k)
-	t.Logf("r1: %v", r1)
-	t.Logf("r2: %v", r2)
 
 	// Create authentication challenge for user `srinath`
 
@@ -175,7 +158,6 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	authID := recvAuthChallengeRes.AuthId
 	cStr := recvAuthChallengeRes.C
 
-	cStr = "4"
 	var c *big.Int = new(big.Int)
 	_, validC := c.SetString(cStr, 10)
 	require.True(t, validC)
@@ -187,7 +169,7 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	// Prover responds to the verifiers challenge
 
 	t.Log("step 2: verify authentication")
-	s := prover.CreateProofChallengeResponse(k, c, cpzkpParams)
+	s := proverS.CreateProofChallengeResponse(k, c, cpzkpParams)
 
 	t.Logf("s: %v", s)
 
@@ -213,12 +195,14 @@ func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *serv
 	// 1) Create Authentication Challenge
 	// 2) Verify Authentication
 
-	// Generate r1 and r2 values
-	proverF := cp_zkp.Prover{}
+	// We set the secret value `x` incorrectly here for the failure test case
+	// `x=4` where as `x=6` is the correct secret at the registration step
+	proverF := cp_zkp.NewProver(big.NewInt(4))
 	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
 	require.NoError(t, err)
 
-	_, r1, r2, err := proverF.CreateProofCommitment(cpzkpParams)
+	// Generate r1 and r2 values
+	k, r1, r2, err := proverF.CreateProofCommitment(cpzkpParams)
 	require.NoError(t, err)
 
 	// Create authentication challenge for user `srinath`
@@ -233,23 +217,29 @@ func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *serv
 	require.NoError(t, err)
 
 	authID := recvAuthChallengeRes.AuthId
+	cStr := recvAuthChallengeRes.C
+
+	var c *big.Int = new(big.Int)
+	_, validC := c.SetString(cStr, 10)
+	require.True(t, validC)
 
 	// Prover responds to the verifiers challenge incorrectly
 	// Compute `s = (k - c * x) mod q`. Since prover has no knowledge of `x`, he cannot compute s correctly
 	// Prover responds incorrectly to the verifiers challenge
-	s := "555"
+
+	s := proverF.CreateProofChallengeResponse(k, c, cpzkpParams)
 
 	// Create verification step
 	_, err = grpcClient.VerifyAuthentication(
 		ctx,
 		&api.AuthenticationAnswerRequest{
 			AuthId: authID,
-			S:      s,
+			S:      s.String(),
 		},
 	)
 
 	// Expected err
-	expErr := grpc_err.ErrInvalidChallengeResponse{S: s}
+	expErr := grpc_err.ErrInvalidChallengeResponse{S: s.String()}
 
 	// Check if both of them are equal
 	require.Equal(t, expErr.Error(), err.Error())

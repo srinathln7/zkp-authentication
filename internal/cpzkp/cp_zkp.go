@@ -2,7 +2,6 @@ package cp_zkp
 
 import (
 	"crypto/rand"
-	"errors"
 	"log"
 	"math/big"
 )
@@ -46,15 +45,6 @@ func (zkp *CPZKP) InitCPZKPParams() (*CPZKPParams, error) {
 	params.h.SetString("9", 10)
 
 	return params, nil
-}
-
-func (zkp *CPZKP) SetZKPParams(p, q, g, h *big.Int) (*CPZKPParams, error) {
-	return &CPZKPParams{
-		p: p,
-		q: q,
-		g: g,
-		h: h,
-	}, nil
 }
 
 // NewProver creates a new Prover with the given secret password x.
@@ -135,8 +125,6 @@ func (v *Verifier) VerifyProof(y1, y2, r1, r2, c, s *big.Int, params *CPZKPParam
 	l1.Mul(l1, new(big.Int).Exp(y1, c, params.p)) // y1^c mod p
 	l1.Mod(l1, params.p)                          // (g^s mod p) (y1 ^c mod p) mod p = (g^s . y1^c). mod p
 
-	log.Printf("[cp_zkp] l1 = %v", l1)
-
 	if l1.Cmp(r1) != 0 {
 		return false
 	}
@@ -148,13 +136,4 @@ func (v *Verifier) VerifyProof(y1, y2, r1, r2, c, s *big.Int, params *CPZKPParam
 	log.Printf("l2 = %v", l2)
 
 	return l2.Cmp(r2) == 0
-}
-
-func ParseBigInt(str string) (*big.Int, error) {
-	bigInt := new(big.Int)
-	bigInt, valid := bigInt.SetString(str, 10)
-	if !valid {
-		return nil, errors.New("error parsing string to big.Int")
-	}
-	return bigInt, nil
 }
