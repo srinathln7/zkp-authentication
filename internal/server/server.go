@@ -11,6 +11,7 @@ import (
 	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
 	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
+	sys_config "github.com/srinathLN7/zkp_auth/lib/config"
 	"github.com/srinathLN7/zkp_auth/lib/util"
 	"google.golang.org/grpc"
 )
@@ -60,8 +61,8 @@ func RunServer(config *Config) {
 		log.Fatalf("failed to create gRPC server: %v", err)
 	}
 
-	// Listen on a free port
-	listener, err := net.Listen("tcp", ":0")
+	// Listen on the specified grpc server port
+	listener, err := net.Listen("tcp", ":"+sys_config.GRPC_PORT)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

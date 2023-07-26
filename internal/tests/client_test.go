@@ -28,7 +28,7 @@ func SetupGRPCClient(t *testing.T, fn func(*server.Config)) (
 	// When printing file and line information, that function will be skipped
 	t.Helper()
 
-	listener, err := net.Listen("tcp", ":0")
+	listener, err := net.Listen("tcp", ":"+sys_config.GRPC_PORT)
 	require.NoError(t, err)
 
 	grpcClientOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}

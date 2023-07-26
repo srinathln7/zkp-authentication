@@ -9,6 +9,8 @@ const (
 	CPZKP_PARAM_H string = "9"
 )
 
+var GRPC_PORT string = "50051"
+
 // Only for testing purposes
 var (
 	CPZKP_TEST_X_CORRECT   = "7"

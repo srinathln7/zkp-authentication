@@ -3,6 +3,8 @@ package client
 import (
 	"context"
 	"log"
+	"math/big"
+	"net"
 
 	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	"github.com/srinathLN7/zkp_auth/lib/util"
@@ -11,10 +13,10 @@ import (
 
 	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
+	sys_config "github.com/srinathLN7/zkp_auth/lib/config"
 )
 
-type Client struct {
-}
+type Client struct{}
 
 type RegRes struct {
 	Msg string `json:"msg"`
@@ -25,9 +27,15 @@ type LogInRes struct {
 }
 
 func RunClient(user, password string) {
+
+	listener, err := net.Listen("tcp", ":"+sys_config.GRPC_PORT)
+	if err != nil {
+		log.Fatalf("failed to dial server: %v", err)
+	}
+
 	// Set up the gRPC client
 	grpcClientOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	conn, err := grpc.Dial(":50051", grpcClientOptions...)
+	conn, err := grpc.Dial(listener.Addr().String(), grpcClientOptions...)
 	if err != nil {
 		log.Fatalf("failed to dial server: %v", err)
 	}
@@ -40,40 +48,25 @@ func RunClient(user, password string) {
 
 	client := &Client{}
 
-	client.Register(grpcClient, user, password)
-	client.LogIn(grpcClient, user, password)
+	cpzkpParams := client.getCPZKPParams()
+	x := client.getSecretValue(password)
 
+	client.Register(grpcClient, user, cpzkpParams, x)
+	client.LogIn(grpcClient, user, cpzkpParams, x)
 }
 
 // RegisterUser Registers the user with the given password and returns a message, if successful
-func (c *Client) Register(grpcClient api.AuthClient, user, password string) (*RegRes, error) {
+func (c *Client) Register(grpcClient api.AuthClient, user string, cpzkpParams *cp_zkp.CPZKPParams, x *big.Int) (*RegRes, error) {
 	ctx := context.Background()
 
-	// Generate the system parameters
-	cpzkp, err := cp_zkp.NewCPZKP()
-	if err != nil {
-		log.Fatal(err)
-		return nil, grpc_err.ErrRegistrationFailed
-	}
-
-	cpzkpParams, err := cpzkp.InitCPZKPParams()
-	if err != nil {
-		log.Fatal(err)
-		return nil, grpc_err.ErrRegistrationFailed
-	}
-
-	// Get the secret value `x` by converting the password uniquely to big Int
-	x := util.StringToUniqueBigInt(password)
-
 	// Create a new Prover (Client) based on the generated secret value `x`
-	// to calculate the y1 and y2 params
 	client := cp_zkp.NewProver(x)
 
 	// Prover(client) generates y1 and y2 values
 	y1, y2 := client.GenerateYValues(cpzkpParams)
 
 	// Received response
-	_, err = grpcClient.Register(
+	_, err := grpcClient.Register(
 		ctx,
 		&api.RegisterRequest{
 			User: user,
@@ -94,28 +87,10 @@ func (c *Client) Register(grpcClient api.AuthClient, user, password string) (*Re
 
 // LogIn : Validates the login credentials using the Chaum-Pedersen Zero-Knowledge Proof
 // protocol and returns a succesful message for a valid login
-func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) {
-
+func (c *Client) LogIn(grpcClient api.AuthClient, user string, cpzkpParams *cp_zkp.CPZKPParams, x *big.Int) (*LogInRes, error) {
 	ctx := context.Background()
 
-	// Generate the system parameters
-	cpzkp, err := cp_zkp.NewCPZKP()
-	if err != nil {
-		log.Fatal(err)
-		return nil, grpc_err.ErrLoginFailed
-	}
-
-	cpzkpParams, err := cpzkp.InitCPZKPParams()
-	if err != nil {
-		log.Fatal(err)
-		return nil, grpc_err.ErrLoginFailed
-	}
-
-	// Get the secret value `x` by converting the password uniquely to big Int
-	x := util.StringToUniqueBigInt(password)
-
 	// Create a new Prover (Client) based on the generated secret value `x`
-	// to calculate the r1 and r2 params for committing the proof
 	client := cp_zkp.NewProver(x)
 
 	k, r1, r2, err := client.CreateProofCommitment(cpzkpParams)
@@ -147,7 +122,6 @@ func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogIn
 	}
 
 	// Challenge response
-
 	s := client.CreateProofChallengeResponse(k, C, cpzkpParams)
 
 	// Verification Step
@@ -167,5 +141,28 @@ func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogIn
 	return &LogInRes{
 		SessionId: verifyRes.SessionId,
 	}, nil
+}
 
+// getCPZKPParams generates the system parameters
+func (c *Client) getCPZKPParams() *cp_zkp.CPZKPParams {
+	// Generate the system parameters
+	cpzkp, err := cp_zkp.NewCPZKP()
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+
+	cpzkpParams, err := cpzkp.InitCPZKPParams()
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+
+	return cpzkpParams
+}
+
+// getSecretValue gets the secret value `x` by converting the password uniquely to big Int
+func (c *Client) getSecretValue(password string) *big.Int {
+	// Get the secret value `x` by converting the password uniquely to big Int
+	return util.StringToUniqueBigInt(password)
 }
