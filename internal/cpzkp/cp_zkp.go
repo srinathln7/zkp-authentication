@@ -2,7 +2,6 @@ package cp_zkp
 
 import (
 	"crypto/rand"
-	"log"
 	"math/big"
 
 	"github.com/srinathLN7/zkp_auth/lib/config"
@@ -130,12 +129,12 @@ func (p *Prover) CreateProofChallengeResponse(k, c *big.Int, params *CPZKPParams
 func (v *Verifier) VerifyProof(y1, y2, r1, r2, c, s *big.Int, params *CPZKPParams) bool {
 
 	// Debug logs
-	log.Printf("[cp_zkp] y1 = %v", y1)
-	log.Printf("[cp_zkp] y2 = %v", y2)
-	log.Printf("[cp_zkp] r1 = %v", r1)
-	log.Printf("[cp_zkp] r2 = %v", r2)
-	log.Printf("[cp_zkp] c = %v", c)
-	log.Printf("[cp_zkp] s = %v", s)
+	// log.Printf("[cp_zkp] y1 = %v", y1)
+	// log.Printf("[cp_zkp] y2 = %v", y2)
+	// log.Printf("[cp_zkp] r1 = %v", r1)
+	// log.Printf("[cp_zkp] r2 = %v", r2)
+	// log.Printf("[cp_zkp] c = %v", c)
+	// log.Printf("[cp_zkp] s = %v", s)
 
 	// Remember: (ab) mod p = ( (a mod p) (b mod p)) mod p
 	l1 := new(big.Int).Exp(params.g, s, params.p) // g^s .mod p

@@ -21,7 +21,7 @@ type ErrInvalidChallengeResponse struct {
 func (e ErrInvalidChallengeResponse) GRPCStatus() *status.Status {
 	st := status.New(
 		401,
-		fmt.Sprintf("authentication error: %s is invalid response to the provided challenge", e.S),
+		"authentication error (401): invalid login credentials",
 	)
 
 	msg := fmt.Sprintf(

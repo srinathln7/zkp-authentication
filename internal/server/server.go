@@ -52,8 +52,6 @@ type grpcServer struct {
 	*Config
 }
 
-var _ api.AuthServer = (*grpcServer)(nil)
-
 func RunServer(config *Config) {
 
 	listener, err := net.Listen("tcp", ":"+sys_config.GRPC_PORT)

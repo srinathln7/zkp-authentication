@@ -35,7 +35,6 @@ func SetupGRPCClient() (*api.AuthClient, error) {
 
 	// Create the gRPC client
 	grpcClient := api.NewAuthClient(conn)
-
 	return &grpcClient, nil
 }
 

@@ -111,11 +111,12 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 			<dl>
 			
 			
-				<dd><a href="#pkg-variables">Variables</a></dd>
-			
 			
 				
 				<dd><a href="#NewGRPCSever">func NewGRPCSever(config *Config) (*grpc.Server, error)</a></dd>
+			
+				
+				<dd><a href="#RunServer">func RunServer(config *Config)</a></dd>
 			
 			
 				
@@ -178,16 +179,10 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 
 		
 		
-			<h2 id="pkg-variables">Variables</h2>
-			
-				
-				<pre>var <span id="_">_</span> <a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/">api</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/#AuthServer">AuthServer</a> = (*grpcServer)(<a href="/pkg/builtin/#nil">nil</a>)</pre>
-			
-		
 		
 			
 			
-			<h2 id="NewGRPCSever">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=1378:1433#L54">NewGRPCSever</a>
+			<h2 id="NewGRPCSever">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=2004:2059#L79">NewGRPCSever</a>
 				<a class="permalink" href="#NewGRPCSever">&#xb6;</a>
 				
 				
@@ -199,10 +194,23 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 			
 
 		
+			
+			
+			<h2 id="RunServer">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=1059:1089#L45">RunServer</a>
+				<a class="permalink" href="#RunServer">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func RunServer(config *<a href="#Config">Config</a>)</pre>
+			
+			
+			
+
+		
 		
 			
 			
-			<h2 id="AuthParams">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=479:563#L19">AuthParams</a>
+			<h2 id="AuthParams">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=549:633#L22">AuthParams</a>
 				<a class="permalink" href="#AuthParams">&#xb6;</a>
 				
 				
@@ -230,7 +238,7 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 		
 			
 			
-			<h2 id="CPZKP">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=315:387#L6">CPZKP</a>
+			<h2 id="CPZKP">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=385:457#L9">CPZKP</a>
 				<a class="permalink" href="#CPZKP">&#xb6;</a>
 				
 				
@@ -254,7 +262,7 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 		
 			
 			
-			<h2 id="Config">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=389:424#L10">Config</a>
+			<h2 id="Config">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=459:494#L13">Config</a>
 				<a class="permalink" href="#Config">&#xb6;</a>
 				
 				
@@ -279,7 +287,7 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 		
 			
 			
-			<h2 id="RegParams">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=426:477#L14">RegParams</a>
+			<h2 id="RegParams">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=496:547#L17">RegParams</a>
 				<a class="permalink" href="#RegParams">&#xb6;</a>
 				
 				
@@ -305,7 +313,7 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 		
 			
 			
-			<h2 id="grpcServer">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=565:987#L26">grpcServer</a>
+			<h2 id="grpcServer">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=635:1057#L29">grpcServer</a>
 				<a class="permalink" href="#grpcServer">&#xb6;</a>
 				
 				
@@ -338,7 +346,7 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 
 			
 				
-				<h3 id="newgrpcServer">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=1032:1087#L44">newgrpcServer</a>
+				<h3 id="newgrpcServer">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=1658:1713#L69">newgrpcServer</a>
 					<a class="permalink" href="#newgrpcServer">&#xb6;</a>
 					
 					
@@ -351,7 +359,7 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 
 			
 				
-				<h3 id="grpcServer.CreateAuthenticationChallenge">func (*grpcServer) <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=2354:2514#L94">CreateAuthenticationChallenge</a>
+				<h3 id="grpcServer.CreateAuthenticationChallenge">func (*grpcServer) <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=2980:3140#L119">CreateAuthenticationChallenge</a>
 					<a class="permalink" href="#grpcServer.CreateAuthenticationChallenge">&#xb6;</a>
 					
 					
@@ -364,7 +372,7 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 				
 			
 				
-				<h3 id="grpcServer.Register">func (*grpcServer) <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=1736:1845#L66">Register</a>
+				<h3 id="grpcServer.Register">func (*grpcServer) <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=2362:2471#L91">Register</a>
 					<a class="permalink" href="#grpcServer.Register">&#xb6;</a>
 					
 					
@@ -379,7 +387,7 @@ by storing the passed-in req body containing `y1` and `y2` values
 				
 			
 				
-				<h3 id="grpcServer.VerifyAuthentication">func (*grpcServer) <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=3712:3857#L147">VerifyAuthentication</a>
+				<h3 id="grpcServer.VerifyAuthentication">func (*grpcServer) <a href="/src/github.com/srinathLN7/zkp_auth/internal/server/server.go?s=4338:4483#L172">VerifyAuthentication</a>
 					<a class="permalink" href="#grpcServer.VerifyAuthentication">&#xb6;</a>
 					
 					

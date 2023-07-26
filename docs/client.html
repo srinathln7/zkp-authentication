@@ -113,20 +113,27 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 			
 			
 				
-				<dd><a href="#ClientRegisterUserFail">func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *server.Config)</a></dd>
+				<dd><a href="#SetupGRPCClient">func SetupGRPCClient() (*api.AuthClient, error)</a></dd>
 			
 				
-				<dd><a href="#ClientRegisterUserSuccess">func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *server.Config)</a></dd>
+				<dd><a href="#getSecretValue">func getSecretValue(password string) *big.Int</a></dd>
+			
 			
 				
-				<dd><a href="#ClientVerifyProofFail">func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *server.Config)</a></dd>
+				<dd><a href="#LogInRes">type LogInRes</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#LogIn">func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error)</a></dd>
+				
+				
 			
 				
-				<dd><a href="#ClientVerifyProofSuccess">func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *server.Config)</a></dd>
-			
+				<dd><a href="#RegRes">type RegRes</a></dd>
 				
-				<dd><a href="#SetupGRPCClient">func SetupGRPCClient(t *testing.T, fn func(*server.Config)) (grpcClient api.AuthClient, cfg *server.Config, teardown func())</a></dd>
-			
+					
+					<dd>&nbsp; &nbsp; <a href="#Register">func Register(grpcClient api.AuthClient, user, password string) (*RegRes, error)</a></dd>
+				
+				
 			
 			
 			</dl>
@@ -154,78 +161,106 @@ using module mode; GOMOD=/home/client/go/src/github.com/srinathLN7/zkp-authentic
 		
 			
 			
-			<h2 id="ClientRegisterUserFail">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=2946:3037#L95">ClientRegisterUserFail</a>
-				<a class="permalink" href="#ClientRegisterUserFail">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func ClientRegisterUserFail(t *<a href="/pkg/testing/">testing</a>.<a href="/pkg/testing/#T">T</a>, grpcClient <a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/">api</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/#AuthClient">AuthClient</a>, config *<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/">server</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/#Config">Config</a>)</pre>
-			<p>ClientRegisterUserFail : Tests registering the client on the server failure sceanario
-
-			
-			
-
-		
-			
-			
-			<h2 id="ClientRegisterUserSuccess">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=1653:1747#L56">ClientRegisterUserSuccess</a>
-				<a class="permalink" href="#ClientRegisterUserSuccess">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func ClientRegisterUserSuccess(t *<a href="/pkg/testing/">testing</a>.<a href="/pkg/testing/#T">T</a>, grpcClient <a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/">api</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/#AuthClient">AuthClient</a>, config *<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/">server</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/#Config">Config</a>)</pre>
-			<p>ClientRegisterUserSuccess : Tests registering the client on the server successfull sceanario
-
-			
-			
-
-		
-			
-			
-			<h2 id="ClientVerifyProofFail">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=5594:5684#L197">ClientVerifyProofFail</a>
-				<a class="permalink" href="#ClientVerifyProofFail">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func ClientVerifyProofFail(t *<a href="/pkg/testing/">testing</a>.<a href="/pkg/testing/#T">T</a>, grpcClient <a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/">api</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/#AuthClient">AuthClient</a>, config *<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/">server</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/#Config">Config</a>)</pre>
-			<p>ClientVerifyProofFail : Tests a client generating a invalid proof sceanario
-
-			
-			
-
-		
-			
-			
-			<h2 id="ClientVerifyProofSuccess">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=3745:3838#L127">ClientVerifyProofSuccess</a>
-				<a class="permalink" href="#ClientVerifyProofSuccess">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func ClientVerifyProofSuccess(t *<a href="/pkg/testing/">testing</a>.<a href="/pkg/testing/#T">T</a>, grpcClient <a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/">api</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/#AuthClient">AuthClient</a>, config *<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/">server</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/#Config">Config</a>)</pre>
-			<p>ClientVerifyProofSuccess : Tests a client generating a valid proof sceanario
-
-			
-			
-
-		
-			
-			
-			<h2 id="SetupGRPCClient">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=620:750#L12">SetupGRPCClient</a>
+			<h2 id="SetupGRPCClient">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=506:553#L16">SetupGRPCClient</a>
 				<a class="permalink" href="#SetupGRPCClient">&#xb6;</a>
 				
 				
 			</h2>
-			<pre>func SetupGRPCClient(t *<a href="/pkg/testing/">testing</a>.<a href="/pkg/testing/#T">T</a>, fn func(*<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/">server</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/#Config">Config</a>)) (
-    grpcClient <a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/">api</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/#AuthClient">AuthClient</a>,
-    cfg *<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/">server</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/internal/server/#Config">Config</a>,
-    teardown func(),
-)</pre>
-			<p>SetupGRPCClient: sets up the grpc client given the server config
+			<pre>func SetupGRPCClient() (*<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/">api</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/#AuthClient">AuthClient</a>, <a href="/pkg/builtin/#error">error</a>)</pre>
+			
+			
+			
+
+		
+			
+			
+			<h2 id="getSecretValue">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=3944:3989#L156">getSecretValue</a>
+				<a class="permalink" href="#getSecretValue">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func getSecretValue(password <a href="/pkg/builtin/#string">string</a>) *<a href="/pkg/math/big/">big</a>.<a href="/pkg/math/big/#Int">Int</a></pre>
+			<p>getSecretValue gets the secret value `x` by converting the password uniquely to big Int
 
 			
 			
 
 		
+		
+			
+			
+			<h2 id="LogInRes">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=442:504#L12">LogInRes</a>
+				<a class="permalink" href="#LogInRes">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type LogInRes struct {
+<span id="LogInRes.SessionId"></span>    SessionId <a href="/pkg/builtin/#string">string</a> `json:&#34;session_id&#34;`
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="LogIn">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=2220:2299#L80">LogIn</a>
+					<a class="permalink" href="#LogIn">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func LogIn(grpcClient <a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/">api</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/#AuthClient">AuthClient</a>, user, password <a href="/pkg/builtin/#string">string</a>) (*<a href="#LogInRes">LogInRes</a>, <a href="/pkg/builtin/#error">error</a>)</pre>
+				<p>LogIn : Validates the login credentials using the Chaum-Pedersen Zero-Knowledge Proof
+protocol and returns a succesful message for a valid login
+
+				
+				
+			
+
+			
+		
+			
+			
+			<h2 id="RegRes">type <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=393:440#L8">RegRes</a>
+				<a class="permalink" href="#RegRes">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type RegRes struct {
+<span id="RegRes.Msg"></span>    Msg <a href="/pkg/builtin/#string">string</a> `json:&#34;msg&#34;`
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="Register">func <a href="/src/github.com/srinathLN7/zkp_auth/internal/client/client.go?s=1030:1110#L32">Register</a>
+					<a class="permalink" href="#Register">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func Register(grpcClient <a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/">api</a>.<a href="/pkg/github.com/srinathLN7/zkp_auth/api/v2/proto/#AuthClient">AuthClient</a>, user, password <a href="/pkg/builtin/#string">string</a>) (*<a href="#RegRes">RegRes</a>, <a href="/pkg/builtin/#error">error</a>)</pre>
+				<p>RegisterUser Registers the user with the given password and returns a message, if successful
+
+				
+				
+			
+
+			
 		
 	
 

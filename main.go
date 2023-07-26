@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
+	"os/signal"
 
 	"github.com/srinathLN7/zkp_auth/cmd"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
@@ -14,18 +16,36 @@ func init() {
 }
 
 func main() {
-	cpzkpParams, err := cp_zkp.NewCPZKP()
-	if err != nil {
-		log.Println("error generating system parameters:", err)
-		os.Exit(1)
+
+	var runServerInBackground = flag.Bool("server", false, "run server in the background")
+	flag.Parse()
+
+	// Check if the --server flag is set
+	if *runServerInBackground {
+		cpzkpParams, err := cp_zkp.NewCPZKP()
+		if err != nil {
+			log.Println("error generating system parameters:", err)
+			os.Exit(1)
+		}
+
+		cfg := &server.Config{
+			CPZKP: cpzkpParams,
+		}
+
+		// Create and start the gRPC server in the background
+		go server.RunServer(cfg)
+
+		// Wait for a graceful shutdown signal (e.g., Ctrl+C)
+		// This will keep the main function running and prevent it from exiting immediately
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		<-c
+
+		// If the server is running, return to prevent executing Cobra commands
+		return
 	}
 
-	cfg := &server.Config{
-		CPZKP: cpzkpParams,
-	}
-
-	go server.RunServer(cfg)
-
+	//  Execute the Cobra commands otherwise
 	if err := cmd.RootCmd.Execute(); err != nil {
 		log.Fatal("error:", err)
 		os.Exit(1)
