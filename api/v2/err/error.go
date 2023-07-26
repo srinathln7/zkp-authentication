@@ -1,0 +1,47 @@
+package zkp_auth
+
+import (
+	"errors"
+	"fmt"
+
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/status"
+)
+
+var ErrRegistrationFailed = errors.New("user registration failed")
+var ErrLoginFailed = errors.New("user login failed")
+
+type ErrInvalidChallengeResponse struct {
+	S string
+}
+
+// GRPCStatus : with receiver of type `ErrInvalidCredentials`
+// sets the req'd msg using the `status` and `errdetails` pkg
+// authentication error `401` is thrown due to invalid credentials
+func (e ErrInvalidChallengeResponse) GRPCStatus() *status.Status {
+	st := status.New(
+		401,
+		"authentication error (401): invalid login credentials",
+	)
+
+	msg := fmt.Sprintf(
+		"Invalid challenge response provided by the prover (client): %s",
+		e.S,
+	)
+
+	d := &errdetails.LocalizedMessage{
+		Locale:  "en-US",
+		Message: msg,
+	}
+
+	std, err := st.WithDetails(d)
+	if err != nil {
+		return st
+	}
+
+	return std
+}
+
+func (e ErrInvalidChallengeResponse) Error() string {
+	return e.GRPCStatus().Err().Error()
+}
