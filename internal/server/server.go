@@ -3,7 +3,9 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/big"
+	"net"
 
 	"github.com/google/uuid"
 	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
@@ -50,6 +52,27 @@ type grpcServer struct {
 }
 
 var _ api.AuthServer = (*grpcServer)(nil)
+
+func RunServer(config *Config) {
+	// Create a new gRPC server and register the service
+	grpcServer, err := NewGRPCSever(config)
+	if err != nil {
+		log.Fatalf("failed to create gRPC server: %v", err)
+	}
+
+	// Listen on a free port
+	listener, err := net.Listen("tcp", ":0")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	fmt.Printf("Server listening on: %s\n", listener.Addr().String())
+
+	// Start the gRPC server
+	if err := grpcServer.Serve(listener); err != nil {
+		log.Fatalf("failed to start gRPC server: %v", err)
+	}
+}
 
 func newgrpcServer(config *Config) (*grpcServer, error) {
 	// initialize the server with ZKP system params and an empty user directory

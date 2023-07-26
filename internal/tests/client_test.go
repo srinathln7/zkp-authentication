@@ -172,7 +172,6 @@ func testClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, confi
 	require.NoError(t, err)
 
 	authID := recvAuthChallengeRes.AuthId
-
 	cStr := recvAuthChallengeRes.C
 	c, err := util.ParseBigInt(cStr, "c")
 	require.NoError(t, err)

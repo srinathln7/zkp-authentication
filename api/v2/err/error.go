@@ -1,11 +1,15 @@
 package zkp_auth
 
 import (
+	"errors"
 	"fmt"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
 )
+
+var ErrRegistrationFailed = errors.New("user registration failed")
+var ErrLoginFailed = errors.New("user login failed")
 
 type ErrInvalidChallengeResponse struct {
 	S string
