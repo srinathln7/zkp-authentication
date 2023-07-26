@@ -32,7 +32,6 @@ func SetupGRPCClient() (*api.AuthClient, error) {
 		log.Fatalf("failed to dial server: %v", err)
 		return nil, err
 	}
-	defer conn.Close()
 
 	// Create the gRPC client
 	grpcClient := api.NewAuthClient(conn)
