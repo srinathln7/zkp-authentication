@@ -4,6 +4,9 @@ import (
 	"crypto/rand"
 	"log"
 	"math/big"
+
+	"github.com/srinathLN7/zkp_auth/lib/config"
+	"github.com/srinathLN7/zkp_auth/lib/util"
 )
 
 type CPZKP struct {
@@ -31,20 +34,33 @@ func NewCPZKP() (*CPZKP, error) {
 // InitCPZKPParams initializes the Chaum-Pedersen ZKP protocol system params.
 func (zkp *CPZKP) InitCPZKPParams() (*CPZKPParams, error) {
 
-	params := &CPZKPParams{
-		p: new(big.Int),
-		q: new(big.Int),
-		g: new(big.Int),
-		h: new(big.Int),
+	// `p` and `q` has 164 bits
+	p, err := util.ParseBigInt(config.CPZKP_PARAM_P, "p")
+	if err != nil {
+		return nil, err
 	}
 
-	// `p` and `q` has 164 bits
-	params.p.SetString("42765216643065397982265462252423826320512529931694366715111734768493812630447", 10)
-	params.q.SetString("21382608321532698991132731126211913160256264965847183357555867384246906315223", 10)
-	params.g.SetString("4", 10)
-	params.h.SetString("9", 10)
+	q, err := util.ParseBigInt(config.CPZKP_PARAM_Q, "q")
+	if err != nil {
+		return nil, err
+	}
 
-	return params, nil
+	g, err := util.ParseBigInt(config.CPZKP_PARAM_G, "g")
+	if err != nil {
+		return nil, err
+	}
+
+	h, err := util.ParseBigInt(config.CPZKP_PARAM_H, "h")
+	if err != nil {
+		return nil, err
+	}
+
+	return &CPZKPParams{
+		p: p,
+		q: q,
+		g: g,
+		h: h,
+	}, nil
 }
 
 // NewProver creates a new Prover with the given secret password x.
@@ -113,6 +129,7 @@ func (p *Prover) CreateProofChallengeResponse(k, c *big.Int, params *CPZKPParams
 // If both checks pass, the proof is valid, and the function returns true; otherwise, it returns false.
 func (v *Verifier) VerifyProof(y1, y2, r1, r2, c, s *big.Int, params *CPZKPParams) bool {
 
+	// Debug logs
 	log.Printf("[cp_zkp] y1 = %v", y1)
 	log.Printf("[cp_zkp] y2 = %v", y2)
 	log.Printf("[cp_zkp] r1 = %v", r1)
@@ -132,8 +149,6 @@ func (v *Verifier) VerifyProof(y1, y2, r1, r2, c, s *big.Int, params *CPZKPParam
 	l2 := new(big.Int).Exp(params.h, s, params.p)
 	l2.Mul(l2, new(big.Int).Exp(y2, c, params.p))
 	l2.Mod(l2, params.p)
-
-	log.Printf("l2 = %v", l2)
 
 	return l2.Cmp(r2) == 0
 }

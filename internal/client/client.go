@@ -11,6 +11,7 @@ import (
 	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
 	"github.com/srinathLN7/zkp_auth/internal/server"
+	"github.com/srinathLN7/zkp_auth/lib/util"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -156,11 +157,10 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	require.NoError(t, err)
 
 	authID := recvAuthChallengeRes.AuthId
-	cStr := recvAuthChallengeRes.C
 
-	var c *big.Int = new(big.Int)
-	_, validC := c.SetString(cStr, 10)
-	require.True(t, validC)
+	cStr := recvAuthChallengeRes.C
+	c, err := util.ParseBigInt(cStr, "c")
+	require.NoError(t, err)
 
 	t.Logf("c: %v", c)
 
@@ -217,11 +217,10 @@ func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *serv
 	require.NoError(t, err)
 
 	authID := recvAuthChallengeRes.AuthId
-	cStr := recvAuthChallengeRes.C
 
-	var c *big.Int = new(big.Int)
-	_, validC := c.SetString(cStr, 10)
-	require.True(t, validC)
+	cStr := recvAuthChallengeRes.C
+	c, err := util.ParseBigInt(cStr, "c")
+	require.NoError(t, err)
 
 	// Prover responds to the verifiers challenge incorrectly
 	// Compute `s = (k - c * x) mod q`. Since prover has no knowledge of `x`, he cannot compute s correctly

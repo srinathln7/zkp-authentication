@@ -2,15 +2,14 @@ package server
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log"
 	"math/big"
 
 	"github.com/google/uuid"
 	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
 	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
+	"github.com/srinathLN7/zkp_auth/lib/util"
 	"google.golang.org/grpc"
 )
 
@@ -42,7 +41,9 @@ type grpcServer struct {
 	// Limited by in-memory non-persistence storage
 	RegDir map[string]RegParams
 
-	// Authentication id directory
+	// Simulate a server-side authentication directory
+	// store the `c`, `y1` and `y2` of the specific user
+	// Limited by in-memory non-persistence storage
 	AuthDir map[string]AuthParams
 
 	*Config
@@ -82,16 +83,14 @@ func (s *grpcServer) Register(ctx context.Context, req *api.RegisterRequest) (
 		return nil, fmt.Errorf("user %s is already registered on the server", req.User)
 	}
 
-	var Y1, Y2 *big.Int = new(big.Int), new(big.Int)
-
-	Y1, validY1 := Y1.SetString(req.Y1, 10)
-	if !validY1 {
-		return nil, errors.New("error parsing string Y1 to big.Int")
+	Y1, err := util.ParseBigInt(req.Y1, "y1")
+	if err != nil {
+		return nil, err
 	}
 
-	Y2, validY2 := Y2.SetString(req.Y2, 10)
-	if !validY2 {
-		return nil, errors.New("error parsing string Y2 to big.Int")
+	Y2, err := util.ParseBigInt(req.Y2, "y2")
+	if err != nil {
+		return nil, err
 	}
 
 	s.RegDir[req.User] = RegParams{
@@ -132,16 +131,14 @@ func (s *grpcServer) CreateAuthenticationChallenge(ctx context.Context, req *api
 		return nil, err
 	}
 
-	var R1, R2 *big.Int = new(big.Int), new(big.Int)
-
-	R1, validR1 := R1.SetString(req.R1, 10)
-	if !validR1 {
-		return nil, errors.New("error parsing string R1 to big.Int")
+	R1, err := util.ParseBigInt(req.R1, "r1")
+	if err != nil {
+		return nil, err
 	}
 
-	R2, validR2 := R2.SetString(req.R2, 10)
-	if !validR2 {
-		return nil, errors.New("error parsing string R2 to big.Int")
+	R2, err := util.ParseBigInt(req.R2, "r2")
+	if err != nil {
+		return nil, err
 	}
 
 	auth_id := authID.String()
@@ -173,30 +170,24 @@ func (s *grpcServer) VerifyAuthentication(ctx context.Context, req *api.Authenti
 	}
 
 	// Get the user name and `c` from the current `auth_id`
-
-	log.Printf("server Auth Directory map %#v\n", s.AuthDir)
 	user := s.AuthDir[req.AuthId].user
 	c := s.AuthDir[req.AuthId].c
 
-	// Retrieve y1 and y2
-
-	log.Printf("server Registry directory map %#v\n", s.RegDir)
-
+	// Retrieve y1, y2, r1, r2
 	y1 := s.RegDir[user].y1
 	y2 := s.RegDir[user].y2
 	r1 := s.AuthDir[req.AuthId].r1
 	r2 := s.AuthDir[req.AuthId].r2
 
 	// convert `req.S` to big.Int
-	var s_zkp *big.Int = new(big.Int)
-	_, validS := s_zkp.SetString(req.S, 10)
-	if !validS {
-		return nil, errors.New("error parsing string `S` to big.Int")
+	S, err := util.ParseBigInt(req.S, "s")
+	if err != nil {
+		return nil, err
 	}
 
 	// Create a verifier to verify the challenge
 	verifier := &cp_zkp.Verifier{}
-	isValidProof := verifier.VerifyProof(y1, y2, r1, r2, c, s_zkp, cpzkpParams)
+	isValidProof := verifier.VerifyProof(y1, y2, r1, r2, c, S, cpzkpParams)
 	if !isValidProof {
 		return nil, grpc_err.ErrInvalidChallengeResponse{S: req.S}
 	}
