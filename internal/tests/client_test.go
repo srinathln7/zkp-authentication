@@ -46,17 +46,17 @@ func SetupGRPCClient(t *testing.T, fn func(*server.Config)) (
 		fn(cfg)
 	}
 
-	grpServer, err := server.NewGRPCSever(cfg)
+	grpcServer, err := server.NewGRPCSever(cfg)
 	require.NoError(t, err)
 
 	go func() {
-		grpServer.Serve(listener)
+		grpcServer.Serve(listener)
 	}()
 
 	grpcClient = api.NewAuthClient(cc)
 
 	return grpcClient, cfg, func() {
-		grpServer.Stop()
+		grpcServer.Stop()
 		cc.Close()
 		listener.Close()
 	}

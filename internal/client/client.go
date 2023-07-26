@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"math/big"
-	"net"
 
 	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	"github.com/srinathLN7/zkp_auth/lib/util"
@@ -16,8 +15,6 @@ import (
 	sys_config "github.com/srinathLN7/zkp_auth/lib/config"
 )
 
-type Client struct{}
-
 type RegRes struct {
 	Msg string `json:"msg"`
 }
@@ -26,34 +23,25 @@ type LogInRes struct {
 	SessionId string `json:"session_id"`
 }
 
-func RunClient(user, password string) {
-
-	listener, err := net.Listen("tcp", ":"+sys_config.GRPC_PORT)
-	if err != nil {
-		log.Fatalf("failed to dial server: %v", err)
-	}
+func SetupGRPCClient() (*api.AuthClient, error) {
 
 	// Set up the gRPC client
 	grpcClientOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	conn, err := grpc.Dial(listener.Addr().String(), grpcClientOptions...)
+	conn, err := grpc.Dial(":"+sys_config.GRPC_PORT, grpcClientOptions...)
 	if err != nil {
 		log.Fatalf("failed to dial server: %v", err)
+		return nil, err
 	}
 	defer conn.Close()
 
 	// Create the gRPC client
 	grpcClient := api.NewAuthClient(conn)
 
-	// Run your client call logics
-	client := &Client{}
-	client.Register(grpcClient, user, password)
-	client.LogIn(grpcClient, user, password)
+	return &grpcClient, nil
 }
 
 // RegisterUser Registers the user with the given password and returns a message, if successful
-// RegisterUser Registers the user with the given password and returns a message, if successful
-func (c *Client) Register(grpcClient api.AuthClient, user, password string) (*RegRes, error) {
-	ctx := context.Background()
+func Register(grpcClient api.AuthClient, user, password string) (*RegRes, error) {
 
 	// Generate the system parameters
 	cpzkp, err := cp_zkp.NewCPZKP()
@@ -69,7 +57,7 @@ func (c *Client) Register(grpcClient api.AuthClient, user, password string) (*Re
 	}
 
 	// Get the secret value `x` by converting the password uniquely to big Int
-	x := c.getSecretValue(password)
+	x := getSecretValue(password)
 
 	// Create a new Prover (Client) based on the generated secret value `x`
 	// to calculate the y1 and y2 params
@@ -79,6 +67,7 @@ func (c *Client) Register(grpcClient api.AuthClient, user, password string) (*Re
 	y1, y2 := client.GenerateYValues(cpzkpParams)
 
 	// Received response
+	ctx := context.Background()
 	_, err = grpcClient.Register(
 		ctx,
 		&api.RegisterRequest{
@@ -100,9 +89,7 @@ func (c *Client) Register(grpcClient api.AuthClient, user, password string) (*Re
 
 // LogIn : Validates the login credentials using the Chaum-Pedersen Zero-Knowledge Proof
 // protocol and returns a succesful message for a valid login
-func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) {
-
-	ctx := context.Background()
+func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) {
 
 	// Generate the system parameters
 	cpzkp, err := cp_zkp.NewCPZKP()
@@ -118,7 +105,7 @@ func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogIn
 	}
 
 	// Get the secret value `x` by converting the password uniquely to big Int
-	x := c.getSecretValue(password)
+	x := getSecretValue(password)
 
 	// Create a new Prover (Client) based on the generated secret value `x`
 	// to calculate the r1 and r2 params for committing the proof
@@ -130,6 +117,7 @@ func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogIn
 		return nil, grpc_err.ErrLoginFailed
 	}
 
+	ctx := context.Background()
 	recvAuthChallengeRes, err := grpcClient.CreateAuthenticationChallenge(
 		ctx,
 		&api.AuthenticationChallengeRequest{
@@ -146,7 +134,7 @@ func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogIn
 
 	authID := recvAuthChallengeRes.AuthId
 	cStr := recvAuthChallengeRes.C
-	C, err := util.ParseBigInt(cStr, "c")
+	c, err := util.ParseBigInt(cStr, "c")
 	if err != nil {
 		log.Fatal(err)
 		return nil, grpc_err.ErrLoginFailed
@@ -154,7 +142,7 @@ func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogIn
 
 	// Challenge response
 
-	s := client.CreateProofChallengeResponse(k, C, cpzkpParams)
+	s := client.CreateProofChallengeResponse(k, c, cpzkpParams)
 
 	// Verification Step
 	verifyRes, err := grpcClient.VerifyAuthentication(
@@ -177,7 +165,7 @@ func (c *Client) LogIn(grpcClient api.AuthClient, user, password string) (*LogIn
 }
 
 // getSecretValue gets the secret value `x` by converting the password uniquely to big Int
-func (c *Client) getSecretValue(password string) *big.Int {
+func getSecretValue(password string) *big.Int {
 	// Get the secret value `x` by converting the password uniquely to big Int
 	return util.StringToUniqueBigInt(password)
 }

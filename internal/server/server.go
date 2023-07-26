@@ -56,6 +56,12 @@ var _ api.AuthServer = (*grpcServer)(nil)
 
 func RunServer(config *Config) {
 
+	listener, err := net.Listen("tcp", ":"+sys_config.GRPC_PORT)
+	if err != nil {
+		log.Fatalf("failed to dial server: %v", err)
+		return
+	}
+
 	// Create a new gRPC server and register the service
 	grpcServer, err := NewGRPCSever(config)
 	if err != nil {
@@ -63,12 +69,8 @@ func RunServer(config *Config) {
 	}
 
 	// Listen on the specified grpc server port
-	listener, err := net.Listen("tcp", ":"+sys_config.GRPC_PORT)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
 
-	fmt.Printf("Server listening on: %s\n", listener.Addr().String())
+	log.Printf("grpc server listening on: %s\n", listener.Addr().String())
 
 	// Start the gRPC server
 	if err := grpcServer.Serve(listener); err != nil {
