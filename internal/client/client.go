@@ -2,21 +2,20 @@ package client
 
 import (
 	"context"
-	"math/big"
 	"net"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
 	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
 	"github.com/srinathLN7/zkp_auth/internal/server"
+	sys_config "github.com/srinathLN7/zkp_auth/lib/config"
 	"github.com/srinathLN7/zkp_auth/lib/util"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
 )
 
 // SetupGRPCClient: sets up the grpc client given the server config
@@ -63,14 +62,20 @@ func SetupGRPCClient(t *testing.T, fn func(*server.Config)) (
 	}
 }
 
+// ClientRegisterUserSuccess : Tests registering the client on the server successfull sceanario
 func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *server.Config) {
 	ctx := context.Background()
 
-	// Prover(client) generates y1 and y2 values
-	// We set the secret value to `x=6`
-	prover := cp_zkp.NewProver(big.NewInt(6))
+	// Generate the system parameters
 	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
 	require.NoError(t, err)
+
+	// We use the CORRECT secret value here and register here
+	x, err := util.ParseBigInt(sys_config.CPZKP_TEST_X_CORRECT, "x")
+	require.NoError(t, err)
+	prover := cp_zkp.NewProver(x)
+
+	// Prover(client) generates y1 and y2 values
 	y1, y2 := prover.GenerateYValues(cpzkpParams)
 
 	// Desired response for successful user registration
@@ -96,15 +101,19 @@ func ClientRegisterUserSuccess(t *testing.T, grpcClient api.AuthClient, config *
 	}
 }
 
+// ClientRegisterUserFail : Tests registering the client on the server failure sceanario
 func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *server.Config) {
 	ctx := context.Background()
 
-	// Prover(client) generates y1 and y2 values
-	prover := cp_zkp.NewProver(big.NewInt(6))
+	// Generate the system parameters
 	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
 	require.NoError(t, err)
 
-	// Generate y1 and y2 values
+	x, err := util.ParseBigInt(sys_config.CPZKP_TEST_X_CORRECT, "x")
+	require.NoError(t, err)
+	prover := cp_zkp.NewProver(x)
+
+	// Prover(client) generates y1 and y2 values
 	y1, y2 := prover.GenerateYValues(cpzkpParams)
 
 	// Register the user `srinath` again
@@ -124,19 +133,25 @@ func ClientRegisterUserFail(t *testing.T, grpcClient api.AuthClient, config *ser
 
 }
 
+// ClientVerifyProofSuccess : Tests a client generating a valid proof sceanario
 func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *server.Config) {
 	ctx := context.Background()
+
+	// Generate the system parameters
+	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
+	require.NoError(t, err)
 
 	// Verfication happens in two stages:
 
 	// Step 1) Create Authentication Challenge
 
-	t.Log("step 1: creating authentication challenge")
-
-	// We set the correct secret value to `x=6`
-	proverS := cp_zkp.NewProver(big.NewInt(6))
-	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
+	// We use the CORRECT secret value here for generating a successful proof
+	// and test the success sceanario
+	x, err := util.ParseBigInt(sys_config.CPZKP_TEST_X_CORRECT, "x")
 	require.NoError(t, err)
+	proverS := cp_zkp.NewProver(x)
+
+	t.Log("step 1: creating authentication challenge")
 
 	// Generate r1 and r2 values
 	t.Log("prover creating proof commitment")
@@ -184,22 +199,23 @@ func ClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, config *s
 	)
 
 	if err != nil {
-		t.Fatal("verification failed for valid proof")
+		t.Fatal("Verification failed for valid proof")
 	}
 }
 
+// ClientVerifyProofFail : Tests a client generating a invalid proof sceanario
 func ClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *server.Config) {
 	ctx := context.Background()
 
-	// Verfication happens in two steps:
-	// 1) Create Authentication Challenge
-	// 2) Verify Authentication
-
-	// We set the secret value `x` incorrectly here for the failure test case
-	// `x=4` where as `x=6` is the correct secret at the registration step
-	proverF := cp_zkp.NewProver(big.NewInt(4))
+	// Generate the system parameters
 	cpzkpParams, err := config.CPZKP.InitCPZKPParams()
 	require.NoError(t, err)
+
+	// We use the INCORRECT secret value here for generating a failure proof
+	// and test the failure sceanario
+	x, err := util.ParseBigInt(sys_config.CPZKP_TEST_X_INCORRECT, "x")
+	require.NoError(t, err)
+	proverF := cp_zkp.NewProver(x)
 
 	// Generate r1 and r2 values
 	k, r1, r2, err := proverF.CreateProofCommitment(cpzkpParams)

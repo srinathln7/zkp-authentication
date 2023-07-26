@@ -11,7 +11,7 @@ func TestCPZKPProtocol(t *testing.T) {
 	cpZKP := &CPZKP{}
 	params1, err := cpZKP.InitCPZKPParams()
 	if err != nil {
-		t.Errorf("Error generating ZKP parameters: %v", err)
+		t.Errorf("error generating ZKP parameters: %v", err)
 		return
 	}
 

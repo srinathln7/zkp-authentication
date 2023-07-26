@@ -34,7 +34,7 @@ func NewCPZKP() (*CPZKP, error) {
 // InitCPZKPParams initializes the Chaum-Pedersen ZKP protocol system params.
 func (zkp *CPZKP) InitCPZKPParams() (*CPZKPParams, error) {
 
-	// `p` and `q` has 164 bits
+	// Generate the system parameters from the config file
 	p, err := util.ParseBigInt(config.CPZKP_PARAM_P, "p")
 	if err != nil {
 		return nil, err
