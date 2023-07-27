@@ -1,12 +1,12 @@
 # Zero-Knowledge Proof (ZKP) Authentication Protocol
 
-This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol as a Proof-of-Concept application. The ZKP protocol is a viable alternative to password hashing in an authentication schema. The main goal of this project is to support one-factor authentication, which involves exact matching of a number (registration password) stored during registration and another number (login password) generated during the login process.
+This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol as a Proof-of-Concept application. The ZKP protocol is a viable alternative to password hashing in an authentication schema. The main goal of this project is to support one-factor authentication, which involves exact matching of a number (registration password) stored during registration and another number (login password) generated during the login process. Refer to the [OVERVIEW.md](https://github.com/srinathLN7/zkp-authentication/blob/main/docs/OVERVIEW.md) for an overview of the protocol.
 
 ## Requirements
 
-* golang v1.20
+* Golang v1.20
 * protoc compiler (v23.3)
-* docker (v20.10.21)
+* Docker (v20.10.21)
 * docker-compose (v20.20.2)
 * VSCode or any other suitable IDE
 
@@ -16,52 +16,45 @@ The project is structured as follows:
 
 ```
 zkp-authentication/
-├── api
-│   ├── v1
-│   │   ├── err
-│   │   │   └── error.go
-│   │   └── proto
-│   │       ├── zkp_auth_grpc.pb.go
-│   │       ├── zkp_auth.pb.go
-│   │       └── zkp_auth.proto
-│   └── v2
-│       ├── err
-│       │   └── error.go
-│       └── proto
-│           ├── zkp_auth_grpc.pb.go
-│           ├── zkp_auth.pb.go
-│           └── zkp_auth.proto
-├── cmd
-│   └── cmd.go
-├── deploy
-│   └── local
-│       ├── docker-compose.yml
-│       ├── Dockerfile.client
-│       └── Dockerfile.server
-├── docs
-│   ├── client.html
-│   ├── index.html
-│   ├── OVERVIEW.md
-│   ├── server.html
-│   └── zkp.html
+├── api/
+│   └── v1/
+│       ├── err/
+│       │   └── error.go
+│       └── proto/
+│           ├── zkp_auth_grpc.pb.go
+│           ├── zkp_auth.pb.go
+│           └── zkp_auth.proto
+├── cmd/
+│   └── cmd.go
+├── deploy/
+│   └── local/
+│       ├── docker-compose.yml
+│       ├── Dockerfile.client
+│       └── Dockerfile.server
+├── docs/
+│   ├── client.html
+│   ├── index.html
+│   ├── OVERVIEW.md
+│   ├── server.html
+│   └── zkp.html
 ├── go.mod
 ├── go.sum
-├── internal
-│   ├── client
-│   │   └── client.go
-│   ├── cpzkp
-│   │   ├── cp_zkp.go
-│   │   └── cp_zkp_test.go
-│   ├── server
-│   │   └── server.go
-│   └── tests
-│       ├── client_test.go
-│       └── server_test.go
-├── lib
-│   ├── config
-│   │   └── config.go
-│   └── util
-│       └── util.go
+├── internal/
+│   ├── client/
+│   │   └── client.go
+│   ├── cpzkp/
+│   │   ├── cp_zkp.go
+│   │   └── cp_zkp_test.go
+│   ├── server/
+│   │   └── server.go
+│   └── tests/
+│       ├── client_test.go
+│       └── server_test.go
+├── lib/
+│   ├── config/
+│   │   └── config.go
+│   └── util/
+│       └── util.go
 ├── LICENSE
 ├── main.go
 ├── Makefile
@@ -106,8 +99,7 @@ go build .
 ./zkp-authentication login -u <username> -p <password>
 ```
 
-Alterntively, if you don't wish to build the binaries, then
-
+Alternatively, if you don't wish to build the binaries, then
 
 4. Start the ZKP authentication server:
 
@@ -127,13 +119,11 @@ go run main.go register -u <username> -p <password>
 go run main.go login -u <username> -p <password>
 ```
 
-
-
 ## Testing
 
 ### Unit Tests
 
-To run the unit tests, use the following command:
+To run all the test files in this project, use the following command:
 
 ```
 make test
@@ -146,7 +136,7 @@ To run using Docker, ensure that Docker is installed on your machine and follow 
 1. Build the Docker images and containers:
 
 ```
-
+cd deploy/local
 docker compose up
 ```
 
@@ -164,6 +154,21 @@ Repeat steps 4, 5, and 6 under the **Usage** section
 docker-compose down
 ```
 
+## API Documentation
+
+For the API documentation, refer to the [docs](https://github.com/srinathLN7/zkp-authentication/tree/main/docs) directory containing individual API documentation about the gRPC server and client APIs.
+
+Alternatively, if you wish to build your own docs, run:
+
+```
+godoc 
+```
+
+and navigate to http://localhost:6060/pkg/github.com/srinathLN7/zkp_auth/internal/?m=all in your browser. You will find the links to all three packages: server, client, and cpzkp (Chaum-Pedersen ZKP).
+
+## Contribution
+
+Contributions to the project are welcome. Please fork the repository and submit a pull request with your changes.
 
 ## License
 
