@@ -14,8 +14,9 @@ COPY . .
 # Build the gRPC server executable
 RUN go build -o zkp_auth .
 
-# Expose the port used by the gRPC server
+# Expose the port used by the gRPC client (optional)
 EXPOSE 50051
+
 
 # Run the gRPC server when the container starts
 CMD ["./zkp_auth"]
