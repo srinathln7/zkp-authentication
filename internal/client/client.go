@@ -56,6 +56,7 @@ func Register(grpcClient api.AuthClient, user, password string) (*RegRes, error)
 
 	// Get the secret value `x` by converting the password uniquely to big Int
 	x := getSecretValue(password)
+	log.Println("[grpcClient-Prover] Transformed password in to a secret value `x`")
 
 	// Create a new Prover (Client) based on the generated secret value `x`
 	// to calculate the y1 and y2 params
@@ -81,7 +82,7 @@ func Register(grpcClient api.AuthClient, user, password string) (*RegRes, error)
 	}
 
 	return &RegRes{
-		Msg: "user registration successful",
+		Msg: "User registration successful",
 	}, nil
 }
 
@@ -104,6 +105,8 @@ func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) 
 
 	// Get the secret value `x` by converting the password uniquely to big Int
 	x := getSecretValue(password)
+
+	log.Println("[grpcClient-Prover] Retrieved secret value `x` from the input password")
 
 	// Create a new Prover (Client) based on the generated secret value `x`
 	// to calculate the r1 and r2 params for committing the proof

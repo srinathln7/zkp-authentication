@@ -2,6 +2,7 @@ package cp_zkp
 
 import (
 	"crypto/rand"
+	"log"
 	"math/big"
 
 	"github.com/srinathLN7/zkp_auth/lib/config"
@@ -54,12 +55,19 @@ func (zkp *CPZKP) InitCPZKPParams() (*CPZKPParams, error) {
 		return nil, err
 	}
 
-	return &CPZKPParams{
+	zkpParams := CPZKPParams{
 		p: p,
 		q: q,
 		g: g,
 		h: h,
-	}, nil
+	}
+
+	// Log the system generated parameters to the console
+
+	log.Println("[ZKP_Auth] ------------------- Generated Chaum–Pedersen Protocol ZKP System Parameters ------------------- ")
+	log.Printf("{ \n p: %v , \n q: %v, \n g : %v, \n h : %v \n }", zkpParams.p, zkpParams.q, zkpParams.g, zkpParams.h)
+
+	return &zkpParams, nil
 }
 
 // NewProver creates a new Prover with the given secret password x.
@@ -75,6 +83,7 @@ func NewProver(x *big.Int) *Prover {
 func (p *Prover) GenerateYValues(params *CPZKPParams) (y1, y2 *big.Int) {
 	y1 = new(big.Int).Exp(params.g, p.x, params.p)
 	y2 = new(big.Int).Exp(params.h, p.x, params.p)
+	log.Println("[grpcClient-Prover]: Generated `y1` and `y2` values")
 	return y1, y2
 }
 
@@ -90,6 +99,7 @@ func (p *Prover) CreateProofCommitment(params *CPZKPParams) (k, r1, r2 *big.Int,
 	r1 = new(big.Int).Exp(params.g, k, params.p)
 	r2 = new(big.Int).Exp(params.h, k, params.p)
 
+	log.Println("[grpcClient-Prover]: Created proof commitment. Generated `k`, `r1` and `r2` values")
 	return k, r1, r2, nil
 }
 
@@ -107,6 +117,7 @@ func (v *Verifier) CreateProofChallenge(params *CPZKPParams) (c *big.Int, err er
 		c.Add(c, big.NewInt(1))
 	}
 
+	log.Println("[grpcServer-Verifier]: Created proof challenge. Generated `c` value")
 	return c, nil
 }
 
@@ -120,6 +131,7 @@ func (p *Prover) CreateProofChallengeResponse(k, c *big.Int, params *CPZKPParams
 		s.Add(s, params.q)
 	}
 
+	log.Println("[grpcClient-Prover]: Created proof response. Computed `s` value")
 	return s
 }
 
@@ -127,6 +139,8 @@ func (p *Prover) CreateProofChallengeResponse(k, c *big.Int, params *CPZKPParams
 // The verifier checks if r1 = (g^s * y1^c) mod p and r2 = (h^s * y2^c) mod p.
 // If both checks pass, the proof is valid, and the function returns true; otherwise, it returns false.
 func (v *Verifier) VerifyProof(y1, y2, r1, r2, c, s *big.Int, params *CPZKPParams) bool {
+
+	defer log.Println("[grpcServer-Verifier]: Verified the generated proof")
 
 	// Debug logs
 	// log.Printf("[cp_zkp] y1 = %v", y1)

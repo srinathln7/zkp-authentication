@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/srinathLN7/zkp_auth/internal/client"
 )
@@ -40,7 +41,7 @@ var registerCmd = &cobra.Command{
 		}
 		regRes, err := client.Register(*grpcClient, user, password)
 		if err != nil {
-			log.Fatal("error:", err)
+			color.Red(err.Error())
 			return
 		}
 
@@ -50,7 +51,7 @@ var registerCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Println(string(resJSON))
+		color.Green(string(resJSON))
 	},
 }
 
@@ -65,7 +66,7 @@ var loginCmd = &cobra.Command{
 		}
 		loginRes, err := client.LogIn(*grpcClient, user, password)
 		if err != nil {
-			log.Fatalf("error logging in %s", err.Error())
+			color.Red(err.Error())
 			return
 		}
 
@@ -75,6 +76,6 @@ var loginCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Println(string(resJSON))
+		color.Green(string(resJSON))
 	},
 }
