@@ -10,7 +10,7 @@ services:
     ports:
       - "50051:50051"
     environment:
-      SERVER_ADDRESS: 172.19.0.2:50051 # Set the pre-determined IP address for the server
+      SERVER_ADDRESS: 172.19.0.2:50051 
 
   zkp-auth-client:
     container_name: local-zkp-auth-client 
@@ -30,5 +30,5 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 172.19.0.0/16 # Set the subnet for the network
+        - subnet: 172.19.0.0/16 
 

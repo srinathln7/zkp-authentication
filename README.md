@@ -65,26 +65,26 @@ zkp-authentication/
 
 To achieve the implementation of the Zero-Knowledge Proof (ZKP) authentication protocol, the following approach is taken:
 
-1. Building Relevant gRPC Server and Client APIs:
+### Building Relevant gRPC Server and Client APIs:
    - The gRPC server and client APIs are constructed based on the given `protobuf` schema using the `protoc` compiler. 
 
-2. Chaum-Pedersen Zero Knowledge Proof Protocol:
+### Implementing Chaum-Pedersen Zero Knowledge Proof Protocol:
    - The Chaum-Pedersen Zero Knowledge Proof Protocol is implemented and tested in isolation. Please note that in order to support Big integers, the variables `r1`, `r2`, `c`, and `s` in the 
 Zero-Knowledge Proof (ZKP) authentication protocol have been changed from `int64` to `string`. This change was necessary because `int64` data type has a fixed range of representable numbers (`-2^63` to `2^63-1`), and it may not be able to handle large integers that are required for cryptographic operations. By using the `string` data type, the ZKP protocol can now accommodate big integers without any limitation on their size. This ensures that the protocol remains secure and accurate even when dealing with large cryptographic values. With this update, the ZKP authentication protocol is better equipped to handle the complexities of cryptographic operations and provide a more reliable and secure user authentication process.For detailed information about this protocol, refer [here](link_to_documentation).
 
-3. Building the gRPC Server:
+### Building the gRPC Server:
    - The gRPC server is built using the `protoc` generated `zkp_auth_grpc.pb.go` and `zkp_auth.pb.go` files. For detailed information, check [here](link_to_documentation).
 
-4. Building the gRPC Client:
+### Building the gRPC Client:
    - The gRPC client is developed using the `protoc` generated `zkp_auth_grpc.pb.go` and `zkp_auth.pb.go` files. For more information, click [here](link_to_documentation).
 
-5. Testing the Server and Client:
+### Testing the Server and Client:
    - Comprehensive testing is performed on the built gRPC server and client to ensure their functionality. For more details, see [here](link_to_documentation).
 
-6. Command Line Interface (CLI) Application:
+### Command Line Interface (CLI) Application:
    - A command-line interface (CLI) application is developed to provide a user-friendly interface for the ZKP authentication protocol. For more details about the CLI, check [here](link_to_documentation).
 
-7. Main Package Entry Point:
+### Main Package Entry Point:
    - The `main` package serves as the entry point for the entire program, orchestrating the ZKP authentication protocol's execution.
 
 For a more in-depth understanding of each step, please refer to the relevant documentation provided in the links.
@@ -154,7 +154,9 @@ go run main.go login -u <username> -p <password>
 To run all the test files in this project, use the following command:
 
 ```
+
 make test
+
 ```
 
 ### Run with Docker
@@ -164,9 +166,14 @@ To run using Docker, ensure that Docker is installed on your machine and follow 
 1. Build the Docker images and containers:
 
 ```
+
 cd deploy/local
+
 docker compose up
+
 ```
+
+If you encounter issues with building the containers due to IP address overlap, it is likely caused by conflicting IP addresses in the network. To resolve this, you can change the subnet address used for the containers to ensure uniqueness. By selecting a different subnet address, you can avoid conflicts and successfully build the containers.
 
 2. Enter the Docker `local-zkp-auth-client` container:
 
@@ -212,7 +219,7 @@ To enhance the Zero-Knowledge Proof (ZKP) authentication protocol, the following
   - Integrate a SQL or NoSQL database into the ZKP authentication protocol to enable persistent data storage. Storing user data in a database ensures that user information is retained across server restarts and provides better support for user management and authentication.
 
 * Enhanced Character Support:
-Currently, the transformation of the user password into a secret value `x` is performed using the `StringToUniqueBigInt` function in the `util` library. This function relies on ASCII characters and uses base 256 to encode the password string. However, to accommodate passwords containing characters beyond the ASCII range, we can extend the character support by utilizing a wider range of characters for encoding.
+  - Currently, the transformation of the user password into a secret value `x` is performed using the `StringToUniqueBigInt` function in the `util` library. This function relies on ASCII characters and uses base 256 to encode the password string. However, to accommodate passwords containing characters beyond the ASCII range, we can extend the character support by utilizing a wider range of characters for encoding.
 
 ## License
 
