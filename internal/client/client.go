@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	"github.com/srinathLN7/zkp_auth/lib/util"
@@ -55,13 +56,13 @@ func Register(grpcClient api.AuthClient, user, password string) (*RegRes, error)
 	cpzkp, err := cp_zkp.NewCPZKP()
 	if err != nil {
 		log.Fatal(err)
-		return nil, grpc_err.ErrRegistrationFailed
+		return nil, err
 	}
 
 	cpzkpParams, err := cpzkp.InitCPZKPParams()
 	if err != nil {
 		log.Fatal(err)
-		return nil, grpc_err.ErrRegistrationFailed
+		return nil, err
 	}
 
 	// Get the secret value `x` by converting the password uniquely to big Int
@@ -87,12 +88,12 @@ func Register(grpcClient api.AuthClient, user, password string) (*RegRes, error)
 	)
 
 	if err != nil {
-		log.Fatal(err)
-		return nil, grpc_err.ErrRegistrationFailed
+		log.Fatal(color.RedString(err.Error()))
+		return nil, grpc_err.ErrInvalidRegistration{User: user}
 	}
 
 	return &RegRes{
-		Msg: "User registration successful",
+		Msg: " user registration successful ",
 	}, nil
 }
 
@@ -104,13 +105,13 @@ func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) 
 	cpzkp, err := cp_zkp.NewCPZKP()
 	if err != nil {
 		log.Fatal(err)
-		return nil, grpc_err.ErrLoginFailed
+		return nil, err
 	}
 
 	cpzkpParams, err := cpzkp.InitCPZKPParams()
 	if err != nil {
 		log.Fatal(err)
-		return nil, grpc_err.ErrLoginFailed
+		return nil, err
 	}
 
 	// Get the secret value `x` by converting the password uniquely to big Int
@@ -125,7 +126,7 @@ func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) 
 	k, r1, r2, err := client.CreateProofCommitment(cpzkpParams)
 	if err != nil {
 		log.Fatal(err)
-		return nil, grpc_err.ErrLoginFailed
+		return nil, err
 	}
 
 	ctx := context.Background()
@@ -139,8 +140,8 @@ func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) 
 	)
 
 	if err != nil {
-		log.Fatal(err)
-		return nil, grpc_err.ErrLoginFailed
+		log.Fatal(color.RedString(err.Error()))
+		return nil, err
 	}
 
 	authID := recvAuthChallengeRes.AuthId
@@ -148,7 +149,7 @@ func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) 
 	c, err := util.ParseBigInt(cStr, "c")
 	if err != nil {
 		log.Fatal(err)
-		return nil, grpc_err.ErrLoginFailed
+		return nil, err
 	}
 
 	// Challenge response
@@ -165,8 +166,8 @@ func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) 
 	)
 
 	if err != nil {
-		log.Fatal(err)
-		return nil, grpc_err.ErrLoginFailed
+		log.Fatal(color.RedString(err.Error()))
+		return nil, grpc_err.ErrInvalidChallengeResponse{S: s.String()}
 	}
 
 	return &LogInRes{

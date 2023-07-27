@@ -113,7 +113,7 @@ func (s *grpcServer) Register(ctx context.Context, req *api.RegisterRequest) (
 	// Check if the user already exists
 
 	if _, userExists := s.RegDir[req.User]; userExists {
-		return nil, fmt.Errorf("user %s is already registered on the server", req.User)
+		return nil, grpc_err.ErrInvalidRegistration{User: req.User}
 	}
 
 	Y1, err := util.ParseBigInt(req.Y1, "y1")

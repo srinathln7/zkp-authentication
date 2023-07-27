@@ -64,7 +64,7 @@ func (zkp *CPZKP) InitCPZKPParams() (*CPZKPParams, error) {
 
 	// Log the system generated parameters to the console
 
-	log.Println("[ZKP_Auth] ------------------- Generated Chaum–Pedersen Protocol ZKP System Parameters ------------------- ")
+	log.Println("[ZKP_Auth] ------------------- Generated Chaum–Pedersen ZKP Protocol System Parameters ------------------- ")
 	log.Printf("{ \n p: %v , \n q: %v, \n g : %v, \n h : %v \n }", zkpParams.p, zkpParams.q, zkpParams.g, zkpParams.h)
 
 	return &zkpParams, nil
