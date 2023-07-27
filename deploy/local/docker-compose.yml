@@ -1,0 +1,34 @@
+version: '3'
+services:
+  zkp-auth-server:
+    container_name: local-zkp-auth-server
+    build:
+      context: ../../
+      dockerfile: deploy/local/Dockerfile.server
+    networks:
+      - zkp-auth-net
+    ports:
+      - "50051:50051"
+    environment:
+      SERVER_ADDRESS: 172.19.0.2:50051 # Set the pre-determined IP address for the server
+
+  zkp-auth-client:
+    container_name: local-zkp-auth-client 
+    build:
+      context: ../../
+      dockerfile: deploy/local/Dockerfile.client
+    networks:
+      - zkp-auth-net
+    environment:
+      SERVER_ADDRESS: "172.19.0.2:50051"  
+    depends_on:
+      - zkp-auth-server
+
+networks:
+  zkp-auth-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.0.0/16 # Set the subnet for the network
+

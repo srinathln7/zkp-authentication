@@ -6,12 +6,13 @@ import (
 	"log"
 	"math/big"
 	"net"
+	"os"
 
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
 	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
-	sys_config "github.com/srinathLN7/zkp_auth/lib/config"
 	"github.com/srinathLN7/zkp_auth/lib/util"
 	"google.golang.org/grpc"
 )
@@ -54,7 +55,14 @@ type grpcServer struct {
 
 func RunServer(config *Config) {
 
-	listener, err := net.Listen("tcp", ":"+sys_config.GRPC_PORT)
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("error loading .env file: %v", err)
+		return
+	}
+
+	grpcServerAddr := os.Getenv("SERVER_ADDRESS")
+	listener, err := net.Listen("tcp", grpcServerAddr)
 	if err != nil {
 		log.Fatalf("failed to dial server: %v", err)
 		return

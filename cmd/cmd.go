@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -26,7 +28,23 @@ var RootCmd = &cobra.Command{
 	Use:   "zkp_auth",
 	Short: "A CLI for ZKP Authentication",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Use 'register' or 'login' subcommands.")
+
+		color.Yellow("************************ Welcome to Chaum-Pedersen ZKP based Authentication CLI *****************")
+		color.Yellow("Please use 'register' or 'login' subcommands.")
+		color.Yellow("To register a new user run: `go run main.go -register -u <username> -p <password>`")
+		color.Yellow("To login a registered user run: `go run main.go -login -u <username> -p <password>`")
+		color.Yellow("To exit this terminal press CTRL+C")
+
+		// Setup a signal handler to capture interrupt and termination signals
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+		done := make(chan os.Signal, 1)
+		signal.Notify(done, os.Interrupt, syscall.SIGTERM)
+
+		// when done exit the program gracefully
+		<-done
+
 	},
 }
 
@@ -41,7 +59,6 @@ var registerCmd = &cobra.Command{
 		}
 		regRes, err := client.Register(*grpcClient, user, password)
 		if err != nil {
-			color.Red(err.Error())
 			return
 		}
 
@@ -66,7 +83,6 @@ var loginCmd = &cobra.Command{
 		}
 		loginRes, err := client.LogIn(*grpcClient, user, password)
 		if err != nil {
-			color.Red(err.Error())
 			return
 		}
 

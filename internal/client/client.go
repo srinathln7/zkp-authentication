@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 	"math/big"
+	"os"
 
+	"github.com/joho/godotenv"
 	api "github.com/srinathLN7/zkp_auth/api/v2/proto"
 	"github.com/srinathLN7/zkp_auth/lib/util"
 	"google.golang.org/grpc"
@@ -12,7 +14,6 @@ import (
 
 	grpc_err "github.com/srinathLN7/zkp_auth/api/v2/err"
 	cp_zkp "github.com/srinathLN7/zkp_auth/internal/cpzkp"
-	sys_config "github.com/srinathLN7/zkp_auth/lib/config"
 )
 
 type RegRes struct {
@@ -26,8 +27,17 @@ type LogInRes struct {
 func SetupGRPCClient() (*api.AuthClient, error) {
 
 	// Set up the gRPC client
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("error loading .env file: %v", err)
+		return nil, err
+	}
+
+	grpcServerAddr := os.Getenv("SERVER_ADDRESS")
+	log.Printf("grpc client dialing on server address %s", grpcServerAddr)
+
 	grpcClientOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	conn, err := grpc.Dial(":"+sys_config.GRPC_PORT, grpcClientOptions...)
+	conn, err := grpc.Dial(grpcServerAddr, grpcClientOptions...)
 	if err != nil {
 		log.Fatalf("failed to dial server: %v", err)
 		return nil, err
