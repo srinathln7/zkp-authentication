@@ -1,6 +1,6 @@
 # Zero-Knowledge Proof (ZKP) Authentication Protocol
 
-This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol as a Proof-of-Concept application. The ZKP protocol is a viable alternative to password hashing in an authentication schema. The main goal of this project is to support one-factor authentication, which involves exact matching of a number (registration password) stored during registration and another number (login password) generated during the login process. Refer to the [OVERVIEW.md](https://github.com/srinathLN7/zkp-authentication/blob/main/docs/OVERVIEW.md) for an overview of the protocol.
+This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol as a Proof-of-Concept application. The ZKP protocol is a viable alternative to password hashing in an authentication schema. The main goal of this project is to support one-factor authentication, which involves exact matching of a number (registration password) stored during registration and another number (login password) generated during the login process. Refer [here](https://github.com/srinathLN7/zkp-authentication/blob/main/docs/README.md) for an overview of the protocol.
 
 ## Requirements
 
@@ -12,54 +12,7 @@ This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol 
 
 ## Project Structure
 
-The project is structured as follows:
-
-```
-zkp-authentication/
-├── api/
-│   └── v1/
-│       ├── err/
-│       │   └── error.go
-│       └── proto/
-│           ├── zkp_auth_grpc.pb.go
-│           ├── zkp_auth.pb.go
-│           └── zkp_auth.proto
-├── cmd/
-│   └── cmd.go
-├── deploy/
-│   └── local/
-│       ├── docker-compose.yml
-│       ├── Dockerfile.client
-│       └── Dockerfile.server
-├── docs/
-│   ├── client.html
-│   ├── index.html
-│   ├── OVERVIEW.md
-│   ├── server.html
-│   └── zkp.html
-├── go.mod
-├── go.sum
-├── internal/
-│   ├── client/
-│   │   └── client.go
-│   ├── cpzkp/
-│   │   ├── cp_zkp.go
-│   │   └── cp_zkp_test.go
-│   ├── server/
-│   │   └── server.go
-│   └── tests/
-│       ├── client_test.go
-│       └── server_test.go
-├── lib/
-│   ├── config/
-│   │   └── config.go
-│   └── util/
-│       └── util.go
-├── LICENSE
-├── main.go
-├── Makefile
-└── README.md
-```
+Refer [here](link_to_doc) for the complete overview of the project structure.
 
 ## Approach
 
@@ -83,10 +36,10 @@ Zero-Knowledge Proof (ZKP) authentication protocol have been changed from `int64
 
 ### Command Line Interface (CLI) Application:
    - A command-line interface (CLI) application is developed to provide a user-friendly interface for the ZKP authentication protocol. For more details about the CLI, check [here](link_to_documentation).
-
+   
 ### Main Package Entry Point:
-   - The `main` package serves as the entry point for the entire program, orchestrating the ZKP authentication protocol's execution.
-
+   - The `main` package serves as the entry point for the entire program, orchestrating the ZKP authentication protocol's execution. Refer [here](link_to_doc) for more details on the same.
+   
 For a more in-depth understanding of each step, please refer to the relevant documentation provided in the links.
 
 ## Usage
@@ -160,7 +113,7 @@ make test
 Upon running this command, you should see all the test cases passing, ensuring the proper functioning of all components within our project. Successful test results indicate that the application is operating as expected and meeting the desired requirements. 
 
 
-### Run with Docker
+## Run with Docker
 
 To run using Docker, ensure that Docker is installed on your machine and follow these steps:
 

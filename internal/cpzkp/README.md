@@ -1,4 +1,3 @@
-
 # Package `cp_zkp` 
 
 The CP-ZKP protocol is implemented using the `cp_zkp` package which consits of two files `cp_zkp.go` and `cp_zkp_test.go`
