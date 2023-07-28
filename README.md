@@ -151,13 +151,14 @@ go run main.go login -u <username> -p <password>
 
 ### Unit Tests
 
-To run all the test files in this project, use the following command:
+To run all the test files in this project, run the following command in your local development terminal:
 
 ```
-
 make test
-
 ```
+
+Upon running this command, you should see all the test cases passing, ensuring the proper functioning of all components within our project. Successful test results indicate that the application is operating as expected and meeting the desired requirements. 
+
 
 ### Run with Docker
 
@@ -181,13 +182,15 @@ If you encounter issues with building the containers due to IP address overlap, 
 docker exec -it local-zkp-auth-client sh
 ```
 
-Repeat steps 4, 5, and 6 under the **Usage** section
+Repeat steps 5, and 6 under the **Usage** section. 
 
 3. Stop and remove the Docker containers:
 
 ```
 docker compose down
 ```
+
+
 
 ## API Documentation
 

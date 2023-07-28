@@ -90,9 +90,18 @@ func (p *Prover) GenerateYValues(params *CPZKPParams) (y1, y2 *big.Int) {
 // CreateProofCommitment: creates a zero-knowledge proof commitment step based on the prover's y1 and y2 values.
 // The prover selects a random value k and commits (r1, r2) = (g^k mod p, h^k mod p).
 func (p *Prover) CreateProofCommitment(params *CPZKPParams) (k, r1, r2 *big.Int, err error) {
-	k, err = rand.Int(rand.Reader, params.q) // Use cryptographically secure random number generator
+
+	// Generate a random `c` in the range of [0, p) following uniform random distribution
+	k, err = rand.Int(rand.Reader, params.p)
 	if err != nil {
 		return nil, nil, nil, err
+	}
+
+	// Additional check to ensure `k` is not zero for better security
+	// if `k` is zero then call the function again to ensure `k` is
+	// really a big integer -> RARE occurence
+	if k.Cmp(big.NewInt(0)) == 0 {
+		return p.CreateProofCommitment(params)
 	}
 
 	// Compute commitments (r1, r2) = (g^k mod p, h^k mod p)
@@ -106,15 +115,18 @@ func (p *Prover) CreateProofCommitment(params *CPZKPParams) (k, r1, r2 *big.Int,
 // CreateProofChallenge: verifier creates a challenge to the prover by generating a random big integer
 // `c` which will be subsequently used by the prover in the `CreateProofChallengeResponse` step
 func (v *Verifier) CreateProofChallenge(params *CPZKPParams) (c *big.Int, err error) {
-	// Generate a random `c` using cryptographically secure random number generator.
-	c, err = rand.Int(rand.Reader, params.q)
+
+	// Generate a random `c` in the range of [0, p) following uniform random distribution
+	c, err = rand.Int(rand.Reader, params.p)
 	if err != nil {
 		return nil, err
 	}
 
-	// Ensure c is not zero
-	if c.Cmp(big.NewInt(0)) <= 0 {
-		c.Add(c, big.NewInt(1))
+	// Additional check to ensure c is not zero for better security
+	// if `c` is zero then call the function again to ensure `c` is
+	// really a big integer -> RARE occurence
+	if c.Cmp(big.NewInt(0)) == 0 {
+		return v.CreateProofChallenge(params)
 	}
 
 	log.Println("[grpcServer-Verifier]: Created proof challenge. Generated `c` value")
@@ -126,10 +138,6 @@ func (v *Verifier) CreateProofChallenge(params *CPZKPParams) (c *big.Int, err er
 func (p *Prover) CreateProofChallengeResponse(k, c *big.Int, params *CPZKPParams) (s *big.Int) {
 	s = new(big.Int).Sub(k, new(big.Int).Mul(c, p.x))
 	s.Mod(s, params.q)
-
-	if s.Cmp(big.NewInt(0)) < 0 {
-		s.Add(s, params.q)
-	}
 
 	log.Println("[grpcClient-Prover]: Created proof response. Computed `s` value")
 	return s

@@ -28,8 +28,9 @@ func SetupGRPCClient(t *testing.T, fn func(*server.Config)) (
 	// When printing file and line information, that function will be skipped
 	t.Helper()
 
-	// Alternatively choose to read the port from the .env file
-	listener, err := net.Listen("tcp", ":50051")
+	// Get a free available port for testing purpose
+	// Alt. we can also use the `.env` variable port
+	listener, err := net.Listen("tcp", ":0")
 	require.NoError(t, err)
 
 	grpcClientOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}

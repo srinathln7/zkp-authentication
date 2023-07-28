@@ -17,14 +17,14 @@ func init() {
 
 func main() {
 
-	var runServerInBackground = flag.Bool("server", false, "run server in the background")
+	var runServerInBackground = flag.Bool("server", false, "run grpc server in the background")
 	flag.Parse()
 
 	// Check if the --server flag is set
 	if *runServerInBackground {
 		cpzkpParams, err := cp_zkp.NewCPZKP()
 		if err != nil {
-			log.Println("error generating system parameters:", err)
+			log.Fatal("error generating system parameters:", err)
 			os.Exit(1)
 		}
 
