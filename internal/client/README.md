@@ -19,14 +19,14 @@ The provided code implements a gRPC client for the Chaum-Pedersen Zero-Knowledge
    - `Register` handles user registration with the server using ZKP.
    - It generates the CP-ZKP system parameters (`cpzkpParams`) by creating a new `CPZKP` instance.
    - The user's password is uniquely converted to a big integer `x` using the `getSecretValue` function.
-   - A new prover (client) is created based on `x`, and it calculates `y1` and `y2` values.
+   - A new prover (client) is created based on `x` (secret value), and it calculates `y1` and `y2` values.
    - The client sends the registration request to the server with the calculated `y1` and `y2`.
    - If successful, it returns a registration response message.
 
 5. **LogIn Function:**
    - `LogIn` performs user login with the server using ZKP.
    - It generates the CP-ZKP system parameters (`cpzkpParams`) by creating a new `CPZKP` instance.
-   - The user's password is uniquely converted to a big integer `x` using the `getSecretValue` function.
+   - The user's password is uniquely converted to a big integer `x` (secret value) using the `getSecretValue` function.
    - A new prover (client) is created based on `x`, and it calculates commitment values `r1` and `r2`.
    - The client sends the authentication challenge request to the server with `r1` and `r2`.
    - The server responds with an authentication challenge, including `authID` and `c`.

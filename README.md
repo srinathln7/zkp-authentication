@@ -1,21 +1,20 @@
 # Zero-Knowledge Proof (ZKP) Authentication Protocol
 
-This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol as a Proof-of-Concept application. The ZKP protocol is a viable alternative to password hashing in an authentication schema. The main goal of this project is to support one-factor authentication, which involves exact matching of a number (registration password) stored during registration and another number (login password) generated during the login process. Refer [here](https://github.com/srinathLN7/zkp-authentication/tree/main/docs) for an overview of the protocol.
+This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol as a Proof-of-Concept application. The ZKP protocol is a viable alternative to password hashing in an authentication schema. The main goal of this project is to support one-factor authentication, which involves exact matching of a number (registration password) stored during registration and another number (login password) generated during the login process. 
 
-
-Click [here](https://youtu.be/UIW9X4wUiB0) to watch the demo presentation. 
+Click [here](https://www.youtube.com/watch?v=-ueOQ7y35Ms) to watch the demo presentation. 
 
 ## Requirements
 
-* Golang v1.20
+* golang (v1.20)
 * protoc compiler (v23.3)
-* Docker (v20.10.21)
+* docker (v20.10.21)
 * docker-compose (v20.20.2)
 * VSCode or any other suitable IDE
 
 ## Project Structure
 
-Refer [here](https://github.com/srinathLN7/zkp-authentication/blob/main/OVERVIEW.md) for the complete overview of the project structure.
+Refer [here](https://github.com/srinathLN7/zkp-authentication/blob/main/OVERVIEW.md) for the complete overview of the protocol and the project structure.
 
 ## Approach
 
@@ -26,7 +25,7 @@ To achieve the implementation of the Zero-Knowledge Proof (ZKP) authentication p
 
 ### Implementing Chaum-Pedersen Zero Knowledge Proof Protocol:
    - The Chaum-Pedersen Zero Knowledge Proof Protocol is implemented and tested in isolation. Please note that in order to support Big integers, the variables `r1`, `r2`, `c`, and `s` in the 
-Zero-Knowledge Proof (ZKP) authentication protocol have been changed from `int64` to `string`. This change was necessary because `int64` data type has a fixed range of representable numbers (`-2^63` to `2^63-1`), and it may not be able to handle large integers that are required for cryptographic operations. By using the `string` data type, the ZKP protocol can now accommodate big integers without any limitation on their size. This ensures that the protocol remains secure and accurate even when dealing with large cryptographic values. With this update, the ZKP authentication protocol is better equipped to handle the complexities of cryptographic operations and provide a more reliable and secure user authentication process.For detailed information about this protocol, refer [here](https://github.com/srinathLN7/zkp-authentication/tree/main/internal/cpzkp).
+Zero-Knowledge Proof (ZKP) authentication protocol have been changed from `int64` to `string`. This change was necessary because `int64` data type has a fixed range of representable numbers (`-2^63` to `2^63-1`), and it may not be able to handle large integers that are required for cryptographic operations. By using the `string` data type, the ZKP protocol can now accommodate big integers without any limitation on their size. This ensures that the protocol remains secure and accurate even when dealing with large cryptographic values. With this update, the ZKP authentication protocol is better equipped to handle the complexities of cryptographic operations and provide a more reliable and secure user authentication process.For implementaion details of the protocol, refer [here](https://github.com/srinathLN7/zkp-authentication/tree/main/internal/cpzkp).
 
 ### Building the gRPC Server:
    - The gRPC server is built using the `protoc` generated `zkp_auth_grpc.pb.go` and `zkp_auth.pb.go` files. For detailed information, check [here](https://github.com/srinathLN7/zkp-authentication/tree/main/internal/server).
@@ -138,7 +137,7 @@ If you encounter issues with building the containers due to IP address overlap, 
 docker exec -it local-zkp-auth-client sh
 ```
 
-Repeat steps 5, and 6 under the **Usage** section. 
+Repeat steps 5, and 6 under the **Usage** section to test for various usernames and password. 
 
 3. Stop and remove the Docker containers:
 
@@ -172,7 +171,7 @@ To enhance the Zero-Knowledge Proof (ZKP) authentication protocol, the following
   - Develop deployment scripts to automate the process of deploying the gRPC server and client containers to the Amazon Web Services (AWS) platform. This streamlines the deployment process and facilitates scalability and reliability.
 
 * Chaum-Pedersen ZKP using Elliptic Curve Cryptography (ECC):
-  - Enhance the Chaum-Pedersen Zero Knowledge Proof Protocol by implementing it using Elliptic Curve Cryptography (ECC). ECC offers efficient and robust cryptographic operations, resulting in improved performance and security for the ZKP protocol.
+  - Enhance the Chaum-Pedersen Zero Knowledge Proof Protocol by implementing it using Elliptic Curve Cryptography (ECC). 
 
 * Integration of SQL/NoSQL Database:
   - Integrate a SQL or NoSQL database into the ZKP authentication protocol to enable persistent data storage. Storing user data in a database ensures that user information is retained across server restarts and provides better support for user management and authentication.

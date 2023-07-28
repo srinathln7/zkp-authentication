@@ -3,8 +3,8 @@
 The `main` package serves as the main entry point for the ZKP Authentication CLI application. It initializes the command-line flags, starts the gRPC server in the background (if the `--server` flag is specified), and executes Cobra commands otherwise to handle CLI subcommands. The application gracefully shuts down the server upon receiving a shutdown signal and logs any errors that occur during execution. 
 
 1. **init Function:**
-   - The `init` function is used to set up the command-line flags for the application.
-   - It calls the `SetupFlags` function from the `cmd` package, which sets up the flags for user and password.
+   - The `init` function is used to set up the command-line flags for the application prior to the execution of our `main` function.
+   - It calls the `SetupFlags` function from the `cmd` package, which sets up the flags for user `-u` and password `-p`.
 
 2. **main Function:**
    - The `main` function is the main entry point of the ZKP Authentication CLI application.
@@ -20,9 +20,9 @@ The `main` package serves as the main entry point for the ZKP Authentication CLI
    - It starts the gRPC server in the background by calling `server.RunServer(cfg)` inside a goroutine.
 
 4. **Graceful Shutdown:**
-   - After starting the gRPC server, the application waits for a graceful shutdown signal (e.g., Ctrl+C) using `signal.Notify`.
+   - After starting the gRPC server in the background using a seperate go routine, the main application waits for a graceful shutdown signal (e.g., Ctrl+C) using `signal.Notify`.
    - It creates a channel `c` to receive the signal.
-   - The application blocks until it receives a signal on the channel `c`, indicating the user wants to shut down the server.
+   - The main application blocks until it receives a signal on the channel `c`, indicating the user wants to shut down the server.
    - When the shutdown signal is received, the goroutine running the server stops, and the application exits.
 
 5. **Cobra Command Execution:**

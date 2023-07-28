@@ -200,7 +200,7 @@ func testClientVerifyProofSuccess(t *testing.T, grpcClient api.AuthClient, confi
 	)
 
 	if err != nil {
-		t.Fatal("Verification failed for valid proof")
+		t.Fatal("verification failed for valid proof")
 	}
 }
 
@@ -240,9 +240,9 @@ func testClientVerifyProofFail(t *testing.T, grpcClient api.AuthClient, config *
 	require.NoError(t, err)
 
 	// Prover responds to the verifiers challenge incorrectly
-	// Compute `s = (k - c * x) mod q`. Since prover has no knowledge of `x`, he cannot compute s correctly
+	// Compute `s = (k - c * x) mod q`. Since prover has no knowledge
+	// of correct `x`, `s` cannot be computed correctly
 	// Prover responds incorrectly to the verifiers challenge
-
 	s := proverF.CreateProofChallengeResponse(k, c, cpzkpParams)
 
 	// Create verification step

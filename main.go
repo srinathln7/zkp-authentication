@@ -33,6 +33,7 @@ func main() {
 		}
 
 		// Create and start the gRPC server in the background
+		// To do this, we spin up a new go routine
 		go server.RunServer(cfg)
 
 		// Wait for a graceful shutdown signal (e.g., Ctrl+C)

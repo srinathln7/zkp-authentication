@@ -13,7 +13,6 @@ func TestMain(m *testing.M) {
 func TestGRPCServer(t *testing.T) {
 
 	// We need a shared-server instance to mimic persistent storage during the test runtime
-
 	// Hence, we setup the grpc client before running each of the individual test cases
 	grpcClient, config, teardown := SetupGRPCClient(t, nil)
 
@@ -28,7 +27,7 @@ func TestGRPCServer(t *testing.T) {
 		testClientRegisterUserSuccess(t, grpcClient, config)
 	})
 
-	t.Run("verification proof successfully", func(t *testing.T) {
+	t.Run("verification proof successful", func(t *testing.T) {
 		testClientVerifyProofSuccess(t, grpcClient, config)
 	})
 

@@ -1,14 +1,14 @@
 ## Custom GRPC Errors in  Package `zkp_auth`:
 
-The `zkp_auth` package defines custom grpc error types and their corresponding GRPCStatus functions to handle specific authentication errors related to ZKP Authentication. These error types provide more specific information about the nature of authentication errors, such as invalid challenge responses or duplicate user registrations. The GRPCStatus functions generate GRPC `status.Status` instances with detailed error messages that can be used to convey meaningful error information to clients and consumers of the ZKP Authentication service.
+The `zkp_auth` package defines custom grpc error types and their corresponding `GRPCStatus` functions to handle specific authentication errors related to ZKP Authentication. These error types provide more specific information about the nature of authentication errors, such as invalid challenge responses or duplicate user registrations. The `GRPCStatus` function generate GRPC `status.Status` instances with detailed error messages that can be used to convey meaningful error information to clients and consumers of the ZKP Authentication service.
 
 1. **ErrInvalidChallengeResponse:**
    - This is a custom error type that represents an invalid challenge response during ZKP verification.
-   - It contains a field `S`, representing the client's challenge response `s`.
+   - It contains a field `S` representing the client's challenge response `s`.
 
 2. **ErrInvalidRegistration:**
    - This is a custom error type that represents an invalid user registration attempt.
-   - It contains a field `User`, representing the username for which registration failed.
+   - It contains a field `User` representing the username for which registration failed.
 
 3. **GRPCStatus for ErrInvalidChallengeResponse:**
    - The `GRPCStatus()` method of `ErrInvalidChallengeResponse` returns a GRPC `status.Status` instance with specific error details.

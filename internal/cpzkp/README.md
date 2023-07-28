@@ -25,9 +25,9 @@ The `cp_zkp.go` file includes the necessary imports and data structures for the 
 
 - `GenerateYValues(params *CPZKPParams) (y1, y2 *big.Int)`: Calculates `y1 = g^x mod p` and `y2 = h^x mod p` based on the prover's secret value `x` and the public parameters. It logs the generated `y1` and `y2` values to the console and returns them.
 
-- `CreateProofCommitment(params *CPZKPParams) (k, r1, r2 *big.Int, err error)`: Creates a proof commitment step. It selects a random value `k` from the range [0, `p`) and computes commitments `r1 = g^k mod p` and `r2 = h^k mod p`. It logs the generated `k`, `r1`, and `r2` values to the console and returns them. Note if `k` is found to be zero, then another random number is generated until `k` is not zero. This is a design choice to ensure that we are indeed working with big integers.
+- `CreateProofCommitment(params *CPZKPParams) (k, r1, r2 *big.Int, err error)`: Creates a proof commitment step. It selects a random value `k` from the range `[0, p)` and computes commitments `r1 = g^k mod p` and `r2 = h^k mod p`. It logs the generated `k`, `r1`, and `r2` values to the console and returns them. Note if `k` is found to be zero, then another random number is generated until `k` is not zero. This is a design choice to ensure that we are indeed working with big integers.
 
-- `CreateProofChallenge(params *CPZKPParams) (c *big.Int, err error)`: Generates a random challenge `c` from the range [o, `p`) and logs the generated `c` value to the console and returns it. Note if `c` is found to be zero, then another random number is generated until `c` is not zero. This is a design choice to ensure that we are indeed working with big integers.
+- `CreateProofChallenge(params *CPZKPParams) (c *big.Int, err error)`: Generates a random challenge `c` from the range `[0, p)` and logs the generated `c` value to the console and returns it. Note if `c` is found to be zero, then another random number is generated until `c` is not zero. This is a design choice to ensure that we are indeed working with big integers.
 
 - `CreateProofChallengeResponse(k, c *big.Int, params *CPZKPParams) (s *big.Int)`: Calculates the prover's response `s` to the verifier's challenge `c`. It computes `s = (k - c * x) mod q` and logs the computed `s` value to the console and returns it.
 
@@ -63,7 +63,7 @@ The `cp_zkp_test.go` file contains comprehensive test cases (`TestCPZKPProtocol`
 
 **Test Correctness:**
    - The verifier tests the correctness of the proof by calling `VerifyProof`.
-   - The verifier checks if `r1` and `r2` match the prover's responses `y1^c * g^s` and `y2^c * h^s`, respectively.
+   - The verifier checks if `r1` and `r2` match the prover's responses `(y1^c * g^s) mod p` and `(y2^c * h^s) mod p`, respectively.
    - If the proof is valid, the test passes; otherwise, it fails with an error message.
 
 **Test Soundness:**
@@ -71,7 +71,7 @@ The `cp_zkp_test.go` file contains comprehensive test cases (`TestCPZKPProtocol`
    - The verifier checks the invalid proof using `VerifyProof`.
    - If the verification returns true (indicating the proof is invalid), the test passes; otherwise, it fails with an error message.
 
-9**TestMain Function:**
+**TestMain Function:**
    - `TestMain` is responsible for running the tests.
    - The `m.Run()` call executes the tests.
 
