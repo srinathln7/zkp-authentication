@@ -2,6 +2,9 @@
 
 This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol as a Proof-of-Concept application. The ZKP protocol is a viable alternative to password hashing in an authentication schema. The main goal of this project is to support one-factor authentication, which involves exact matching of a number (registration password) stored during registration and another number (login password) generated during the login process. Refer [here](https://github.com/srinathLN7/zkp-authentication/tree/main/docs) for an overview of the protocol.
 
+
+Click [here](https://youtu.be/UIW9X4wUiB0) to watch the demo presentation. 
+
 ## Requirements
 
 * Golang v1.20
