@@ -1,6 +1,6 @@
 # Zero-Knowledge Proof (ZKP) Authentication Protocol
 
-This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol as a Proof-of-Concept application. The ZKP protocol is a viable alternative to password hashing in an authentication schema. The main goal of this project is to support one-factor authentication, which involves exact matching of a number (registration password) stored during registration and another number (login password) generated during the login process. Refer [here](https://github.com/srinathLN7/zkp-authentication/blob/main/docs/README.md) for an overview of the protocol.
+This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol as a Proof-of-Concept application. The ZKP protocol is a viable alternative to password hashing in an authentication schema. The main goal of this project is to support one-factor authentication, which involves exact matching of a number (registration password) stored during registration and another number (login password) generated during the login process. Refer [here](https://github.com/srinathLN7/zkp-authentication/tree/main/docs) for an overview of the protocol.
 
 ## Requirements
 
@@ -12,7 +12,7 @@ This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol 
 
 ## Project Structure
 
-Refer [here](link_to_doc) for the complete overview of the project structure.
+Refer [here](https://github.com/srinathLN7/zkp-authentication/blob/main/OVERVIEW.md) for the complete overview of the project structure.
 
 ## Approach
 
@@ -23,22 +23,22 @@ To achieve the implementation of the Zero-Knowledge Proof (ZKP) authentication p
 
 ### Implementing Chaum-Pedersen Zero Knowledge Proof Protocol:
    - The Chaum-Pedersen Zero Knowledge Proof Protocol is implemented and tested in isolation. Please note that in order to support Big integers, the variables `r1`, `r2`, `c`, and `s` in the 
-Zero-Knowledge Proof (ZKP) authentication protocol have been changed from `int64` to `string`. This change was necessary because `int64` data type has a fixed range of representable numbers (`-2^63` to `2^63-1`), and it may not be able to handle large integers that are required for cryptographic operations. By using the `string` data type, the ZKP protocol can now accommodate big integers without any limitation on their size. This ensures that the protocol remains secure and accurate even when dealing with large cryptographic values. With this update, the ZKP authentication protocol is better equipped to handle the complexities of cryptographic operations and provide a more reliable and secure user authentication process.For detailed information about this protocol, refer [here](link_to_documentation).
+Zero-Knowledge Proof (ZKP) authentication protocol have been changed from `int64` to `string`. This change was necessary because `int64` data type has a fixed range of representable numbers (`-2^63` to `2^63-1`), and it may not be able to handle large integers that are required for cryptographic operations. By using the `string` data type, the ZKP protocol can now accommodate big integers without any limitation on their size. This ensures that the protocol remains secure and accurate even when dealing with large cryptographic values. With this update, the ZKP authentication protocol is better equipped to handle the complexities of cryptographic operations and provide a more reliable and secure user authentication process.For detailed information about this protocol, refer [here](https://github.com/srinathLN7/zkp-authentication/tree/main/internal/cpzkp).
 
 ### Building the gRPC Server:
-   - The gRPC server is built using the `protoc` generated `zkp_auth_grpc.pb.go` and `zkp_auth.pb.go` files. For detailed information, check [here](link_to_documentation).
+   - The gRPC server is built using the `protoc` generated `zkp_auth_grpc.pb.go` and `zkp_auth.pb.go` files. For detailed information, check [here](https://github.com/srinathLN7/zkp-authentication/tree/main/internal/server).
 
 ### Building the gRPC Client:
-   - The gRPC client is developed using the `protoc` generated `zkp_auth_grpc.pb.go` and `zkp_auth.pb.go` files. For more information, click [here](link_to_documentation).
+   - The gRPC client is developed using the `protoc` generated `zkp_auth_grpc.pb.go` and `zkp_auth.pb.go` files. For more information, click [here](https://github.com/srinathLN7/zkp-authentication/tree/main/internal/client).
 
 ### Testing the Server and Client:
-   - Comprehensive testing is performed on the built gRPC server and client to ensure their functionality. For more details, see [here](link_to_documentation).
+   - Comprehensive testing is performed on the built gRPC server and client to ensure their functionality. For more details, see [here](https://github.com/srinathLN7/zkp-authentication/tree/main/internal/tests).
 
 ### Command Line Interface (CLI) Application:
-   - A command-line interface (CLI) application is developed to provide a user-friendly interface for the ZKP authentication protocol. For more details about the CLI, check [here](link_to_documentation).
+   - A command-line interface (CLI) application is developed to provide a user-friendly interface for the ZKP authentication protocol. For more details about the CLI, check [here](https://github.com/srinathLN7/zkp-authentication/tree/main/cmd).
    
 ### Main Package Entry Point:
-   - The `main` package serves as the entry point for the entire program, orchestrating the ZKP authentication protocol's execution. Refer [here](link_to_doc) for more details on the same.
+   - The `main` package serves as the entry point for the entire program, orchestrating the ZKP authentication protocol's execution. Refer [here](https://github.com/srinathLN7/zkp-authentication/blob/main/MAIN.md) for more details on the same.
    
 For a more in-depth understanding of each step, please refer to the relevant documentation provided in the links.
 

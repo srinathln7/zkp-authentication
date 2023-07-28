@@ -45,7 +45,8 @@ The `test` package consists of two file `client_test.go` and `server_test.go` fi
    - The server responds with an authentication challenge, including an `authID` and `c`.
    - The prover calculates an incorrect response `s` due to the incorrect secret value.
    - The client sends the authentication response (`s`) to the server for verification.
-   - The function expects an error from the server that matches the expected `grpc_err.ErrInvalidChallengeResponse` defined in the `api/v2/err/error.go` file.
+   - The function expects an error from the server that matches the expected `grpc_err.ErrInvalidChallengeResponse` defined in the `api/v2/err/error.go` file. For more info on custom defined grpc error
+   messages, refer [here](https://github.com/srinathLN7/zkp-authentication/tree/main/api/v2/err)
 
 ## `server_test.go`:
 

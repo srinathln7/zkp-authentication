@@ -36,6 +36,6 @@ The provided code implements a gRPC client for the Chaum-Pedersen Zero-Knowledge
 
 6. **getSecretValue Function:**
    - `getSecretValue` converts a password string to a unique big integer using the utility library function `StringToUniqueBigInt`. For more info on the functions in the utility 
-   library refer [here](link_to_doc).
+   library refer [here](https://github.com/srinathLN7/zkp-authentication/tree/main/lib/util).
 
 The CP-ZKP client code provides a gRPC-based authentication client that allows users to register and login securely using the Chaum-Pedersen Zero-Knowledge Proof protocol. The client generates and sends ZKP-based proof commitments and responses to the server for authentication. It also includes error handling for invalid requests and responses. The client works with the CP-ZKP server to securely perform user registration and login operations.
