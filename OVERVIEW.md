@@ -46,7 +46,6 @@ The primary goal of this project is to design and write the code that implements
 ├── docs
 │   ├── client.html
 │   ├── index.html
-│   ├── README.md
 │   ├── server.html
 │   └── zkp.html
 ├── go.mod
@@ -79,5 +78,6 @@ The primary goal of this project is to design and write the code that implements
 ├── OVERVIEW.md
 └── README.md
 
-19 directories, 40 files
+19 directories, 39 files
+
 ```
