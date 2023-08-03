@@ -179,6 +179,21 @@ To enhance the Zero-Knowledge Proof (ZKP) authentication protocol, the following
 * Enhanced Character Support:
   - Currently, the transformation of the user password into a secret value `x` is performed using the `StringToUniqueBigInt` function in the `util` library. This function relies on ASCII characters and uses base 256 to encode the password string. However, to accommodate passwords containing characters beyond the ASCII range, we can extend the character support by utilizing a wider range of characters for encoding.
 
+
+
+## Self Review Comments
+
+This branch contains some suggestions to improve the codebase in `main` branch
+
+**Done**
+* Updated the `SERVER_ADDRESS` environment variable for both the `zkp-auth-server` and `zkp-auth-client` containers to use the service name `zkp-auth-server` as the hostname. Docker Compose's built-in DNS resolution will automatically resolve this hostname to the IP address of the corresponding container.
+
+**Tobe Done**
+* Remove unnecessary declaration of channel `c` in `cmd.go` file. 
+* `log.Fatal`, `log.Fatalf` internally calls `os.Exit(1)`. Hence all `os.Exit(1)` statements can be removed after `log.Fatal` and `log.Fatalf` statements.
+* `return` inside the `if` clause in `main.go` is not necessary since the `main` go routine (thread) is already paused through blocking condition `<- c`.
+* Introduce custom grpc error `ErrUSerNotFound` with status code `404` to cover the case where the client invokes `login` before `register`.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
