@@ -10,7 +10,7 @@ services:
     ports:
       - "50051:50051"
     environment:
-      SERVER_ADDRESS: 172.19.0.2:50051 
+      SERVER_ADDRESS: zkp-auth-server:50051 
 
   zkp-auth-client:
     container_name: local-zkp-auth-client 
@@ -20,7 +20,7 @@ services:
     networks:
       - zkp-auth-net
     environment:
-      SERVER_ADDRESS: "172.19.0.2:50051"  
+      SERVER_ADDRESS: zkp-auth-server:50051  
     depends_on:
       - zkp-auth-server
 

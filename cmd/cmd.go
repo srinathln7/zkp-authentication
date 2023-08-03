@@ -36,8 +36,10 @@ var RootCmd = &cobra.Command{
 		color.Yellow("To exit this terminal press CTRL+C")
 
 		// Setup a signal handler to capture interrupt and termination signals
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+		// Not req'd
+
+		// c := make(chan os.Signal, 1)
+		// signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 		done := make(chan os.Signal, 1)
 		signal.Notify(done, os.Interrupt, syscall.SIGTERM)
