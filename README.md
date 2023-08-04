@@ -73,13 +73,13 @@ go build .
 5. Use the CLI to register a new user:
 
 ```
-./zkp-authentication register -u <username> -p <password>
+./zkp-auth register -u <username> -p <password>
 ```
 
 6. Use the CLI to log in with the registered user:
 
 ```
-./zkp-authentication login -u <username> -p <password>
+./zkp-auth login -u <username> -p <password>
 ```
 
 Alternatively, if you don't wish to build the binaries, then
@@ -181,18 +181,19 @@ To enhance the Zero-Knowledge Proof (ZKP) authentication protocol, the following
 
 
 
-## Self Review Comments
+## Self Review: Post Submission Comments   
 
 This branch contains some suggestions to improve the codebase in `main` branch
 
 **Done**
 * Updated the `SERVER_ADDRESS` environment variable for both the `zkp-auth-server` and `zkp-auth-client` containers to use the service name `zkp-auth-server` as the hostname. Docker Compose's built-in DNS resolution will automatically resolve this hostname to the IP address of the corresponding container.
+* Remove unnecessary declaration of channel `c` in `cmd.go` file inside `RootCmd` function. 
+* `log.Fatal`, `log.Fatalf` internally calls `os.Exit(1)`. Hence all `os.Exit(1)` statements can be removed after `log.Fatal` and `log.Fatalf` statements.
 
 **Tobe Done**
-* Remove unnecessary declaration of channel `c` in `cmd.go` file. 
-* `log.Fatal`, `log.Fatalf` internally calls `os.Exit(1)`. Hence all `os.Exit(1)` statements can be removed after `log.Fatal` and `log.Fatalf` statements.
-* `return` inside the `if` clause in `main.go` is not necessary since the `main` go routine (thread) is already paused through blocking condition `<- c`.
-* Introduce custom grpc error `ErrUSerNotFound` with status code `404` to cover the case where the client invokes `login` before `register`.
+* Introduce custom grpc error `ErrUSerNotFound` with status code `404` in the `error.go` file to cover the case where the client invokes `login` before registering a user.
+* Combine the two test files `server_test.go` and `client_test.go` inside the `internal/test` directory into one single file `grpc_test.go`. Consider renaming
+the function `setupGRPCClient` to `setupGRPCTest`.
 
 ## License
 

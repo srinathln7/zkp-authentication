@@ -25,7 +25,6 @@ func main() {
 		cpzkpParams, err := cp_zkp.NewCPZKP()
 		if err != nil {
 			log.Fatal("error generating system parameters:", err)
-			os.Exit(1)
 		}
 
 		cfg := &server.Config{
@@ -49,6 +48,5 @@ func main() {
 	//  Execute the Cobra commands otherwise
 	if err := cmd.RootCmd.Execute(); err != nil {
 		log.Fatal("error:", err)
-		os.Exit(1)
 	}
 }
