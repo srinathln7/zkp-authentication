@@ -36,9 +36,6 @@ var RootCmd = &cobra.Command{
 		color.Yellow("To exit this terminal press CTRL+C")
 
 		// Setup a signal handler to capture interrupt and termination signals
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-
 		done := make(chan os.Signal, 1)
 		signal.Notify(done, os.Interrupt, syscall.SIGTERM)
 
@@ -55,7 +52,6 @@ var registerCmd = &cobra.Command{
 		grpcClient, err := client.SetupGRPCClient()
 		if err != nil {
 			log.Fatalf("error setting up grpc client %s", err.Error())
-			return
 		}
 		regRes, err := client.Register(*grpcClient, user, password)
 		if err != nil {
@@ -65,7 +61,6 @@ var registerCmd = &cobra.Command{
 		resJSON, err := json.Marshal(regRes)
 		if err != nil {
 			log.Fatal("error:", err)
-			return
 		}
 
 		color.Green(string(resJSON))
@@ -79,7 +74,6 @@ var loginCmd = &cobra.Command{
 		grpcClient, err := client.SetupGRPCClient()
 		if err != nil {
 			log.Fatalf("error setting up grpc client %s", err.Error())
-			return
 		}
 		loginRes, err := client.LogIn(*grpcClient, user, password)
 		if err != nil {
@@ -89,7 +83,6 @@ var loginCmd = &cobra.Command{
 		resJSON, err := json.Marshal(loginRes)
 		if err != nil {
 			log.Fatal("error:", err)
-			return
 		}
 
 		color.Green(string(resJSON))

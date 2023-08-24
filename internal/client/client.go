@@ -104,13 +104,13 @@ func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) 
 	// Generate the system parameters
 	cpzkp, err := cp_zkp.NewCPZKP()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return nil, err
 	}
 
 	cpzkpParams, err := cpzkp.InitCPZKPParams()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return nil, err
 	}
 
@@ -125,7 +125,7 @@ func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) 
 
 	k, r1, r2, err := client.CreateProofCommitment(cpzkpParams)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return nil, err
 	}
 
@@ -148,7 +148,7 @@ func LogIn(grpcClient api.AuthClient, user, password string) (*LogInRes, error) 
 	cStr := recvAuthChallengeRes.C
 	c, err := util.ParseBigInt(cStr, "c")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return nil, err
 	}
 
