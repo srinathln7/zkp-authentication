@@ -181,7 +181,7 @@ To enhance the Zero-Knowledge Proof (ZKP) authentication protocol, the following
 
 
 
-## Self Review: Post Submission Comments   
+## Self Review:   
 
 This branch contains some suggestions to improve the codebase in `main` branch
 
