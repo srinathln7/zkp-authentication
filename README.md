@@ -4,6 +4,8 @@ This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol 
 
 Click [here](https://www.youtube.com/watch?v=-ueOQ7y35Ms) to watch the demo presentation. 
 
+**NOT MEANT FOR PRODUCTION USAGE**
+
 ## Requirements
 
 * golang (v1.20)
