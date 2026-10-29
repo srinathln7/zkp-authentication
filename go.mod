@@ -1,6 +1,6 @@
 module github.com/srinathLN7/zkp_auth
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/google/go-cmp v0.7.0
@@ -25,7 +25,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/net v0.48.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 )
