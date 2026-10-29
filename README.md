@@ -4,7 +4,7 @@ This repository implements a Zero-Knowledge Proof (ZKP) authentication protocol 
 
 Click [here](https://www.youtube.com/watch?v=-ueOQ7y35Ms) to watch the demo presentation. 
 
-**NOT MEANT FOR PRODUCTION USAGE**
+> **THIS REPO SERVES ONLY AS PROOF-OF-CONCEPT AND IS NOT MEANT FOR PRODUCTION USAGE. THIS CODEBASE IS NOT AUDITED AND MUST NOT BE USED TO SECURE ANY REAL WORLD ASSETS OR VALUE**
 
 ## Requirements
 
